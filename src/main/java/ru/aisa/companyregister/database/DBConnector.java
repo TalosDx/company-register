@@ -34,16 +34,16 @@ public class DBConnector
             connection = DriverManager.getConnection(url, username, password);
             System.out.println("Connection established");
             statement = connection.createStatement();
-            if(selectTable(COMPANIES_TABLE) == null)
-            {
-                System.out.println(createCompany);
-                statement.executeUpdate(createCompany);
-            }
-            if(selectTable(EMPLOYEE_TABLE) == null)
-            {
-                System.out.println(createEmployee);
-                statement.executeUpdate(createEmployee);
-            }
+            //if(selectTable(COMPANIES_TABLE) == null)
+            //            {
+            //                System.out.println(createCompany);
+            //                statement.executeUpdate(createCompany);
+            //            }
+            //            if(selectTable(EMPLOYEE_TABLE) == null)
+            //            {
+            //                System.out.println(createEmployee);
+            //                statement.executeUpdate(createEmployee);
+            //            }
         }
         catch (SQLException | ClassNotFoundException e)
         {
@@ -102,20 +102,6 @@ public class DBConnector
         ds.setUsername(username);
         ds.setPassword(password);
         return new NamedParameterJdbcTemplate(ds);
-    }
-
-    public static ResultSet selectTable(String tableName)
-    {
-        if (statement == null)
-            throw new IllegalArgumentException("selectTable: global variable 'statement' is NULL");
-        try
-        {
-            return statement.executeQuery("SELECT * FROM " + tableName);
-        }
-        catch (SQLException e)
-        {
-            return null;
-        }
     }
 
     public static <T extends RowMapper> List<T> sqlExecute(String sql_insert_employee, RowMapper<T> mapper)

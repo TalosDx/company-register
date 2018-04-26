@@ -49,7 +49,7 @@ public class WindowAddEmployee extends WindowController
     @Override
     public void drawWindow() throws SQLException
     {
-        ResultSet resultSet = DBConnector.selectTable(DBConnector.COMPANIES_TABLE);
+        ResultSet resultSet = null;//DBConnector.selectTable(DBConnector.COMPANIES_TABLE);
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
         //Начинается с 2, потому что первое поле id и оно ни к чему для заполнения пользователем

@@ -1,4 +1,4 @@
-package ru.aisa.companyregister;
+package ru.aisa.companyregister.database.request;
 
 import ru.aisa.companyregister.database.request.DefaultSQLInsert;
 import ru.aisa.companyregister.database.request.SQLInsert;
