@@ -1,35 +1,48 @@
 package ru.aisa.companyregister;
 
-import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.logging.impl.Log4JLogger;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.aisa.companyregister.utils.LazyUtils;
+import ru.aisa.companyregister.database.DBConnector;
+import ru.aisa.companyregister.ui.WindowController;
+import ru.aisa.companyregister.ui.WindowAddCompany;
 
-import javax.servlet.annotation.WebServlet;
-import java.io.IOException;
-import java.util.Properties;
+import java.sql.SQLException;
 
 public class CompanyRegister extends UI
 {
+    final WindowController window = new WindowAddCompany();
+
+
     @Override
     protected void init(VaadinRequest request)
     {
         final VerticalLayout layout = new VerticalLayout();
-        Button button = new Button();
-        layout.addComponent(button);
+        DBConnector.ConnectToDb();
         setContent(layout);
+        try
+        {
+            window.init(this);
+            window.drawWindow();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        createButton(layout);
     }
 
-    @WebServlet(urlPatterns = "/*", name = "CompanyRegisterUIServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = CompanyRegister.class, productionMode = false)
-    public static class CompanyRegisterUIServlet extends VaadinServlet
+    private void createButton(VerticalLayout layout)
     {
+        Button button = new Button();
+        layout.addComponent(button);
+        layout.setComponentAlignment(button, Alignment.TOP_CENTER);
+        button.addClickListener(event ->
+        {
+            if(!this.getWindows().contains(window.getWindow()))
+            this.addWindow(window.getWindow());
+        });
     }
 }

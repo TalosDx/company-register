@@ -1,14 +1,14 @@
-package ru.aisa.companyregister;
+package ru.aisa.companyregister.entity;
 
 import java.time.LocalDate;
 
-public class CoWoker
+public class Coworker
 {
     private long id;
     private String fullName, email, companyName;
     private  LocalDate birthday;
 
-    public CoWoker(long id, String fullName, LocalDate birthday, String email , String companyName)
+    public Coworker(long id, String fullName, LocalDate birthday, String email , String companyName)
     {
         this.id = id;
         this.fullName = fullName;
@@ -65,7 +65,7 @@ public class CoWoker
     @Override
     public String toString()
     {
-        return "CoWoker{" +
+        return "Coworker{" +
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +

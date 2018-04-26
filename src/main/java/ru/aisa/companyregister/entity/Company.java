@@ -1,4 +1,4 @@
-package ru.aisa.companyregister;
+package ru.aisa.companyregister.entity;
 
 public class Company
 {
@@ -7,7 +7,7 @@ public class Company
     private long inn;
     private String address, phone;
 
-    public Company(long id, long inn, String companyName, String address, String phone)
+    public Company(long id, String companyName, long inn , String address, String phone)
     {
         this.id = id;
         this.companyName = companyName;
