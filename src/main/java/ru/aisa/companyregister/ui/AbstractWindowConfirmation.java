@@ -10,5 +10,11 @@ public abstract class AbstractWindowConfirmation extends WindowController
     public abstract void setCancelOperation(Boolean cancel);
 
     //Отображает изменные данные по колонках в окне подтверждения
+
+    /**
+     * Показать вносимых измененний в виде таблицы
+     * @param table - сформированная таблица, которая будет показана.
+     * @return
+     */
     public abstract boolean setShowData(Table table);
 }

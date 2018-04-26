@@ -12,7 +12,7 @@ public class DefaultSQLInsert implements SQLInsert
     // + " (:COMPANY_NAME, :INN, :ADDRESS, :PHONE)";
 
     @Override
-    public String getSqlRequest(String table, String[] nameColumns, String[] nameVariables)
+    public String getInsertRequest(String table, String[] nameColumns, String[] nameVariables)
     {
         int size=0;
         if (nameColumns.length == nameVariables.length) size = nameVariables.length;
@@ -40,7 +40,7 @@ public class DefaultSQLInsert implements SQLInsert
 
 
     @Override
-    public int Insert(String table, String[] nameColumns, String[] nameVariables, Object[] objects)
+    public int insert(String table, String[] nameColumns, String[] nameVariables, Object[] objects)
     {
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 
@@ -53,6 +53,6 @@ public class DefaultSQLInsert implements SQLInsert
             sqlParameterSource.addValue(nameColumns[i], objects[i]);
 
         }
-        return sqlUpdate(sqlParameterSource, getSqlRequest(table, nameColumns, nameVariables));
+        return sqlUpdate(sqlParameterSource, getInsertRequest(table, nameColumns, nameVariables));
     }
 }

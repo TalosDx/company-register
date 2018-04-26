@@ -45,17 +45,27 @@ public class DefaultSQLUpdate implements SQLUpdate
 
 
     @Override
-    public int Update(String table, String[] nameColumns, String[] nameVariables, Object[] objects, String[] conditionColumn, String[] conditionVariable)
+    public int Update(String table, String[] nameColumns, String[] nameVariables, Object[] objects, String[] conditionColumn, String[] conditionVariable, Object[] objectCondition)
     {
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 
-        int size=0;
+        int size;
         if (nameColumns.length == objects.length) size = objects.length;
         else throw new IllegalArgumentException("Length of nameColumns and objects not equal");
 
         for(int i=0; i<size; i++)
         {
             sqlParameterSource.addValue(nameColumns[i], objects[i]);
+
+        }
+
+        int sizeCondition;
+        if(conditionColumn.length == conditionVariable.length)sizeCondition = conditionColumn.length;
+        else throw new IllegalArgumentException("Length of conditionColumn and conditionVariable not equal");
+
+        for(int i=0; i<sizeCondition; i++)
+        {
+            sqlParameterSource.addValue(conditionColumn[i], objectCondition[i]);
 
         }
         return sqlUpdate(sqlParameterSource, getSqlRequest(table, nameColumns, nameVariables, conditionColumn, conditionVariable));
