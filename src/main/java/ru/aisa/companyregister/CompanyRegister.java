@@ -20,7 +20,7 @@ public class CompanyRegister extends UI
     protected void init(VaadinRequest request)
     {
         final VerticalLayout layout = new VerticalLayout();
-        DBConnector.ConnectToDb();
+        DBConnector.createTable();
         setContent(layout);
         try
         {

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import static com.vaadin.ui.Alignment.TOP_LEFT;
 import static com.vaadin.ui.Alignment.TOP_RIGHT;
 
-public class WindowAddCoworker extends WindowController
+public class WindowAddEmployee extends WindowController
 {
     final Window window = new Window(LazyUtils.getLangProperties("window.add.coworker"));
     final FormLayout content = new FormLayout();
@@ -53,20 +53,7 @@ public class WindowAddCoworker extends WindowController
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
         //Начинается с 2, потому что первое поле id и оно ни к чему для заполнения пользователем
-        for (int i = 2; i <= resultSetMetaData.getColumnCount(); i++)
-        {
-            fields.put(resultSetMetaData.getColumnName(i), resultSetMetaData.getColumnTypeName(i));
-            Label label = new Label(LazyUtils.getLangProperties(resultSetMetaData.getColumnName(i)));
-            TextField textField = new TextField();
-            textField.setMaxLength(30); //TODO ДОПИЛИТЬ и получить тип и относительно типа запилить орг. символов, для Char юзать getCount или около того
-            HorizontalLayout hLayout = new HorizontalLayout(label, textField); //TODO поправить сиё из цикла вон
-            hLayout.setWidth("100%");
-            hLayout.setComponentAlignment(label, TOP_LEFT);
-            hLayout.setComponentAlignment(textField, TOP_RIGHT);
-            labels.add(label);
-            this.textFields.add(textField);
-            content.addComponent(hLayout);
-        }
+        WindowAddCompany.getDataFromTable(resultSetMetaData, fields, labels, this.textFields, content);
         Button buttonCancel = makeButtonWindow("windows.add.coworker.button.cancel", event ->
         {
             try

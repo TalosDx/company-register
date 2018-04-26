@@ -18,6 +18,7 @@ public class WindowConfirmation extends AbstractWindowConfirmation
 
     public WindowConfirmation(Window parent)
     {
+        window = new Window();
         this.parent = parent;
     }
 
@@ -33,8 +34,9 @@ public class WindowConfirmation extends AbstractWindowConfirmation
     public void init(UI ui) throws SQLException
     {
         if (isCancelOperation)
-            window = new Window(LazyUtils.getLangProperties("windows.add.company.confirmation.popup.cancel"));
-        else window = new Window(LazyUtils.getLangProperties("windows.add.company.confirmation.popup"));
+            window.setCaption(LazyUtils.getLangProperties("windows.add.company.confirmation.popup.cancel"));
+        else window.setCaption(LazyUtils.getLangProperties("windows.add.company.confirmation.popup"));
+
         if (!isInit)
         {
             this.getWindow().setModal(true);
