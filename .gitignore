@@ -1,3 +1,7 @@
-.idea/
-target/
+$GIT_DIR/.idea/
+.idea/dataSources.xml
+.idea/libraries/Maven__org_apache_logging_log4j_log4j_api_2_11_0.xml
+.idea/libraries/Maven__org_apache_logging_log4j_log4j_core_2_11_0.xml
+$GIT_DIR/target/
+$GIT_DIR/.idea/
 *.iml
