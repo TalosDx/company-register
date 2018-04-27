@@ -126,4 +126,10 @@ public interface AbstractTableDAO
      * @return - возвращает код выполнения операции
      */
     int deleteFromTable(String tableName, String[] conditionColumns, String[] conditionVariables, Object[] conditionObjects);
+
+    /**
+     * Возвращает количество записей в таблице
+     * @param tableName - имя таблицы
+     */
+    int getCountFromTable(String tableName);
 }

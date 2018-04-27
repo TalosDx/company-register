@@ -2,18 +2,16 @@ package ru.aisa.companyregister.ui;
 
 import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
-import ru.aisa.companyregister.database.DBConnector;
+import ru.aisa.companyregister.database.dao.CompanyGenericDAOImpl;
+import ru.aisa.companyregister.database.dao.EmployeeGenericDAOImpl;
+import ru.aisa.companyregister.database.dao.GenericDAO;
 import ru.aisa.companyregister.utils.LazyUtils;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.vaadin.ui.Alignment.*;
-
-public class WindowAddCompany extends WindowController
+public class WindowCompanyAdd extends WindowController
 {
     final com.vaadin.ui.Window window = new com.vaadin.ui.Window(LazyUtils.getLangProperties("window.add.company"));
     final FormLayout content = new FormLayout();
@@ -24,6 +22,7 @@ public class WindowAddCompany extends WindowController
     AbstractWindowConfirmation windowConfirmation = new WindowConfirmation(getWindow());
     private UI ui;
     private boolean isInit;
+    GenericDAO sqlCompany = new CompanyGenericDAOImpl();
 
     @Override
     public com.vaadin.ui.Window getWindow()
@@ -48,12 +47,9 @@ public class WindowAddCompany extends WindowController
     @Override
     public void drawWindow() throws SQLException
     {
-        ResultSet resultSet = null;
-        //DBConnector.selectTable(DBConnector.COMPANIES_TABLE);
-        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
+        //employeeGeneric.re
         //Начинается с 2, потому что первое поле id и оно ни к чему для заполнения пользователем
-        getDataFromTable(resultSetMetaData, fields, labels, this.textFields, content);
+        //getDataFromTable(resultSetMetaData, fields, labels, this.textFields, content);
         Button buttonCancel = makeButtonWindow("windows.add.company.button.cancel", event ->
         {
             try

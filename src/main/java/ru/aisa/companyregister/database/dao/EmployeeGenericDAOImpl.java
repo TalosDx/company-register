@@ -26,6 +26,12 @@ public class EmployeeGenericDAOImpl implements GenericDAO<Employee>
     }
 
     @Override
+    public int getCount()
+    {
+        return sqlExecutor.getCountFromTable(tableName);
+    }
+
+    @Override
     public List<Employee> read(String[] conditionColumns, Object[] objects)
     {
         return sqlExecutor.selectColumnsByCondition(tableName, employeeColumns, conditionColumns, conditionColumns, objects, new EmployeeMapperImpl());

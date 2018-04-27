@@ -6,6 +6,8 @@ import ru.aisa.companyregister.database.DBConnector;
 
 import java.util.List;
 
+import static ru.aisa.companyregister.database.DBConnector.sqlExecute;
+import static ru.aisa.companyregister.database.DBConnector.sqlExecuteForInt;
 import static ru.aisa.companyregister.database.DBConnector.sqlUpdate;
 
 public class TableDAOImpl implements AbstractTableDAO
@@ -238,4 +240,10 @@ public class TableDAOImpl implements AbstractTableDAO
 
         }
         return sqlUpdate(sqlParameterSource, getDeleteRequest(tableName, conditionColumns, conditionVariables));    }
+
+    @Override
+    public int getCountFromTable(String tableName)
+    {
+        return sqlExecuteForInt("SELECT COUNT(*) " + "FROM " + tableName);
+    }
 }

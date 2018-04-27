@@ -20,7 +20,7 @@ public class DBConnector
 
     public static Statement createTable()
     {
-        String url = "jdbc:postgresql://" + LazyUtils.getProperties("host") + ":" + LazyUtils.getProperties("port") + "/" + LazyUtils.getProperties("database");
+        String url = "jdbc:" + LazyUtils.getProperties("host") + ":" + LazyUtils.getProperties("port") + "/" + LazyUtils.getProperties("database");
         String username = LazyUtils.getProperties("username");
         String password = LazyUtils.getProperties("password");
         try
@@ -66,7 +66,7 @@ public class DBConnector
 
     public static NamedParameterJdbcTemplate getCrateNPJT()
     {
-        String url = "jdbc:postgresql://" + LazyUtils.getProperties("host") + ":" + LazyUtils.getProperties("port") + "/" + LazyUtils.getProperties("database");
+        String url = "jdbc:" + LazyUtils.getProperties("host") + ":" + LazyUtils.getProperties("port") + "/" + LazyUtils.getProperties("database");
         String username = LazyUtils.getProperties("username");
         String password = LazyUtils.getProperties("password");
         BasicDataSource ds = new BasicDataSource();
@@ -88,6 +88,35 @@ public class DBConnector
         {
             exc.printStackTrace();
             return null;
+        }
+    }
+
+
+    public static int sqlExecuteForInt(String sql_insert_employee, MapSqlParameterSource sqlParameterSource)
+    {
+        try
+        {
+            NamedParameterJdbcTemplate jdbcTemplate = getCrateNPJT();
+            return jdbcTemplate.queryForInt(sql_insert_employee, sqlParameterSource);
+        }
+        catch (Exception exc)
+        {
+            exc.printStackTrace();
+            return 0;
+        }
+    }
+
+    public static int sqlExecuteForInt(String sql_insert_employee)
+    {
+        try
+        {
+            NamedParameterJdbcTemplate jdbcTemplate = getCrateNPJT();
+            return jdbcTemplate.queryForInt(sql_insert_employee, (SqlParameterSource) null);
+        }
+        catch (Exception exc)
+        {
+            exc.printStackTrace();
+            return 0;
         }
     }
 

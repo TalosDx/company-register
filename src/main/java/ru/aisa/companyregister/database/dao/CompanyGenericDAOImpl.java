@@ -25,6 +25,12 @@ public class CompanyGenericDAOImpl implements GenericDAO<Company>
     }
 
     @Override
+    public int getCount()
+    {
+        return sqlExecutor.getCountFromTable(tableName);
+    }
+
+    @Override
     public List<Company> read(String[] conditionColumns, Object[] objects)
     {
         return sqlExecutor.selectColumnsByCondition(tableName, companyColumns, conditionColumns, conditionColumns, objects, new CompanyMapperImpl());
