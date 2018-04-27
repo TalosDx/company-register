@@ -17,6 +17,14 @@ public class Employee
         this.companyName = companyName;
     }
 
+    public Employee(String fullName, LocalDate birthday, String email , String companyName)
+    {
+        this.fullName = fullName;
+        this.birthday = birthday;
+        this.email = email;
+        this.companyName = companyName;
+    }
+
     public long getId()
     {
         return id;

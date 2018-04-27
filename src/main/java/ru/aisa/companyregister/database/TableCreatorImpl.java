@@ -1,17 +1,17 @@
 package ru.aisa.companyregister.database;
 
-public class DefaultTableCreator implements ITableCreator
+public class TableCreatorImpl implements AbstractTableCreator
 {
     private Boolean ifNotExists = true;
     private String SQL_CREATE_TABLE;
 
     @Override
-    public String createTable(String tableName, String[] objects, String[] types)
+    public String getCreateRequest(String tableName, String[] nameColumns, String[] typeColumns)
     {
-        if (objects.length != types.length)
-            throw new IllegalArgumentException("createTable: objects.length != types.length...");
+        if (nameColumns.length != typeColumns.length)
+            throw new IllegalArgumentException("getCreateRequest: objects.length != types.length...");
         String str;
-        for (int i = 0; i < types.length; i++)
+        for (int i = 0; i < typeColumns.length; i++)
         {
             if (i == 0)
                 if (!this.ifNotExists)
@@ -19,8 +19,8 @@ public class DefaultTableCreator implements ITableCreator
                 else if (this.ifNotExists)
                     SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + tableName + " (";
 
-            str = i == types.length - 1 ? ");" : ",";
-            SQL_CREATE_TABLE += " " + objects[i] + " " + types[i] + str;
+            str = i == typeColumns.length - 1 ? ");" : ",";
+            SQL_CREATE_TABLE += " " + nameColumns[i] + " " + typeColumns[i] + str;
         }
         return SQL_CREATE_TABLE;
     }

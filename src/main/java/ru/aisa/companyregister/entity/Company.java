@@ -16,9 +16,22 @@ public class Company
         this.phone = phone;
     }
 
+    public Company(String companyName, long inn , String address, String phone)
+    {
+        this.companyName = companyName;
+        this.inn = inn;
+        this.address = address;
+        this.phone = phone;
+    }
+
     public void setId(long id)
     {
         this.id = id;
+    }
+
+    public long getId()
+    {
+        return id;
     }
 
     public String getCompanyName()

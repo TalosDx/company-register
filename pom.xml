@@ -14,8 +14,8 @@
     </prerequisites>
 
     <properties>
-        <vaadin.version>7.7.13</vaadin.version>
-        <vaadin.plugin.version>7.7.13</vaadin.plugin.version>
+        <vaadin.version>7.7.7</vaadin.version>
+        <vaadin.plugin.version>7.7.7</vaadin.plugin.version>
         <jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -96,28 +96,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
