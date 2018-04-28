@@ -4,11 +4,11 @@ import java.time.LocalDate;
 
 public class Employee
 {
-    private long id;
+    private int id;
     private String fullName, email, companyName;
     private  LocalDate birthday;
 
-    public Employee(long id, String fullName, LocalDate birthday, String email , String companyName)
+    public Employee(int id, String fullName, LocalDate birthday, String email , String companyName)
     {
         this.id = id;
         this.fullName = fullName;
@@ -25,7 +25,13 @@ public class Employee
         this.companyName = companyName;
     }
 
-    public long getId()
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
+
+    public int getId()
     {
         return id;
     }
@@ -73,7 +79,7 @@ public class Employee
     @Override
     public String toString()
     {
-        return "Employee{" +
+        return "EmployeeController{" +
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +

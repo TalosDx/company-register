@@ -7,11 +7,11 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EmployeeGenericDAOImplTest
+class EmployeeControllerGenericDAOImplTest
 {
 
-    Employee employee = new Employee("Ivan Ivanovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "OAO MetaPhone");
-    Employee employee1 = new Employee("Ivan Evckovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "OAO MetaPhone");
+    Employee employee = new Employee("Simon Ivanovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "ПАО_Builders_and_Cars and Cats");
+    Employee employee1 = new Employee("Kamina Evckovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "OAO MetaPhone");
 
     GenericDAO genericDAO = new EmployeeGenericDAOImpl();
 

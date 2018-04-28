@@ -18,7 +18,7 @@ public class DBConnector
     private static Statement statement;
     private static AbstractTableCreator tableCreator = new TableCreatorImpl();
 
-    public static Statement createTable()
+    public static void createTable()
     {
         String url = "jdbc:" + LazyUtils.getProperties("host") + ":" + LazyUtils.getProperties("port") + "/" + LazyUtils.getProperties("database");
         String username = LazyUtils.getProperties("username");
@@ -30,7 +30,7 @@ public class DBConnector
             System.out.println("Connection established");
             statement = connection.createStatement();
             tableCreator.setIfNotExists(true);
-            final String createCompany = tableCreator.getCreateRequest(COMPANIES_TABLE, new String[]{"id", "COMPANY_NAME", "INN", "ADDRESS", "PHONE"}, new String[]{"serial primary key", "char(120)", "integer", "char(250)", "char(16)"});
+            final String createCompany = tableCreator.getCreateRequest(COMPANIES_TABLE, new String[]{"id", "COMPANY_NAME", "INN", "ADDRESS", "PHONE"}, new String[]{"serial primary key", "char(120)", "integer", "char(250)", "char(15)"});
             final String createEmployee = tableCreator.getCreateRequest(EMPLOYEE_TABLE, new String[]{"id", "FULL_NAME", "BIRTHDAY", "EMAIL", "COMPANY_NAME"}, new String[]{"serial primary key", "char(40)", "date", "char(30)", "char(120)"});
 
                 System.out.println(createCompany);
@@ -61,7 +61,6 @@ public class DBConnector
                 e.printStackTrace();
             }
         }
-        return statement;
     }
 
     public static NamedParameterJdbcTemplate getCrateNPJT()

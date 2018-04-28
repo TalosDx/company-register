@@ -2,12 +2,12 @@ package ru.aisa.companyregister.entity;
 
 public class Company
 {
-    private long id;
+    private int id;
     private String companyName;
     private long inn;
     private String address, phone;
 
-    public Company(long id, String companyName, long inn , String address, String phone)
+    public Company(int id, String companyName, long inn , String address, String phone)
     {
         this.id = id;
         this.companyName = companyName;
@@ -24,12 +24,12 @@ public class Company
         this.phone = phone;
     }
 
-    public void setId(long id)
+    public void setId(int id)
     {
         this.id = id;
     }
 
-    public long getId()
+    public int getId()
     {
         return id;
     }
