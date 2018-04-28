@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EmployeeControllerGenericDAOImplTest
+class EmployeePopUpControllerImplGenericDAOImplTest
 {
 
     Employee employee = new Employee("Simon Ivanovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "ПАО_Builders_and_Cars and Cats");

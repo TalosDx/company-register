@@ -9,32 +9,41 @@ import ru.aisa.companyregister.database.dao.EmployeeGenericDAOImpl;
 import ru.aisa.companyregister.database.dao.GenericDAO;
 import ru.aisa.companyregister.entity.Company;
 import ru.aisa.companyregister.entity.Employee;
+import ru.aisa.companyregister.utils.LazyUtils;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
-public class EmployeeController
+import static ru.aisa.companyregister.utils.LazyUtils.toLocalDate;
+
+public class EmployeePopUpControllerImpl implements AbstractPopUpController<Employee>
 {
     private GenericDAO<Employee> employeeSql = new EmployeeGenericDAOImpl();
     private List<Employee> employees;
     private Table tableEmployee = new Table();
+    private Grid gridEmployee = new Grid();
     private ComboBox boxEditEmployee = new ComboBox();
     private ComboBox boxDeleteEmployee = new ComboBox();
-    Window windowEmployee;
     GenericDAO<Company> companySql = new CompanyGenericDAOImpl();
     private List<Company> companies;
+    ColumnsValidatorMapper validatorMapper = new EmployeeValidatorMapperImpl();
 
 
-    public void init()
+    @Override
+    public void updateItemData()
+    {
+
+    }
+
+    @Override
+    public void init(Layout layout)
     {
         updateCompanyTables();
-        windowEmployee = this.createWindowCompanies();
-        FormLayout formCompanies = new FormLayout();
-        windowEmployee.setContent(formCompanies);
         TabSheet tabsEmployee = new TabSheet();
         tabsEmployee.setHeight("100%");
-        formCompanies.addComponent(tabsEmployee);
+        layout.addComponent(tabsEmployee);
+        gridEmployee = LazyUtils.createGrid(new String[]{"full_name", "birthday", "email", "company_name"}, new Class<?>[]{String.class, Date.class, String.class, String.class});
 
         this.updateEmployeesCollection();
         this.createCompanyTable();
@@ -47,15 +56,11 @@ public class EmployeeController
         boxEditEmployee.setImmediate(true);
         boxDeleteEmployee.setImmediate(true);
 
-        tabsEmployee.addTab(tabCompanyList, "Список сотрудников");
-        
-        tabsEmployee.addTab(tabCompanyEditVertical, "Редактирование сотрудников");
 
 
-        tabsEmployee.addTab(tabCompanyAddVertical, "Добавить сотрудника");
+
         createAddEmployeeButton(tabCompanyAddVertical);
 
-        tabsEmployee.addTab(tabCompanyDeleteVertical, "Удалить сотрудника");
         createDeleteEmployeeButton(tabCompanyDeleteVertical);
         
         tabsEmployee.setSizeFull();
@@ -67,6 +72,24 @@ public class EmployeeController
         tabCompanyEditHorizontal.addComponent(buttonEdit);
 
         this.addClickEmployeeEditButton(buttonEdit, tabCompanyEditVertical);
+
+    }
+
+    @Override
+    public void displayAddItem(Layout layout)
+    {
+
+    }
+
+    @Override
+    public void displayEditItem(Layout layout, Employee item)
+    {
+
+    }
+
+    @Override
+    public void displayDeleteItem(Layout layout, Employee item)
+    {
 
     }
 
@@ -140,14 +163,7 @@ public class EmployeeController
             employeeField.setCaption("ФИО:");
             employeeField.setWidth("200px");
             employeeField.setMaxLength(120);
-            employeeField.addValidator(new AbstractStringValidator("Любые символы кроме цифр")
-            {
-                @Override
-                protected boolean isValidValue(String value)
-                {
-                    return value.matches("[^0-9]+");
-                }
-            });
+            employeeField.addValidator(validatorMapper.getValidatorFromColumn("full_name"));
 
             DateField dateField = new DateField();
             dateField.setCaption("Дата Рождения");
@@ -157,7 +173,7 @@ public class EmployeeController
             emailField.setCaption("email");
             emailField.setWidth("200px");
             emailField.setMaxLength(250);
-            emailField.addValidator(new EmailValidator("Некорректный email, используйте формат name@mail.ru"));
+            emailField.addValidator(validatorMapper.getValidatorFromColumn("email"));
 
             ComboBox companyBox = new ComboBox();
             companyBox.setNullSelectionAllowed(false);
@@ -194,14 +210,6 @@ public class EmployeeController
         }
     }
 
-
-    public Window getWindowEmployees()
-    {
-        if (windowEmployee == null)
-            throw new IllegalStateException("CompaniesController not initialized!");
-        return windowEmployee;
-    }
-
     public Window createWindowCompanies()
     {
         Window windowCompanies = new Window("Сотрудники");
@@ -227,6 +235,7 @@ public class EmployeeController
         return tableEmployee;
     }
 
+
     /**
      * Обновляет только коллекцию с сотрудниками
      */
@@ -242,18 +251,17 @@ public class EmployeeController
     {
         this.employees = employeeSql.readAll();
         tableEmployee.removeAllItems();
+        boxEditEmployee.removeAllItems();
+        boxDeleteEmployee.removeAllItems();
         for (int i = 0; i < employees.size(); i++)
         {
             Employee employee = employees.get(i);
             tableEmployee.addItem(new Object[]{employee.getFullName(), employee.getBirthday(), employee.getEmail(), employee.getCompanyName()}, i);
-        }
-        boxEditEmployee.removeAllItems();
-        for (int i = 0; i < employees.size(); i++)
+            gridEmployee.addRow(new Object[]{employee.getFullName(), employee.getBirthday(), employee.getEmail(), employee.getCompanyName()});
             boxEditEmployee.addItem(employees.get(i).getFullName());
-
-        boxDeleteEmployee.removeAllItems();
-        for (int i = 0; i < employees.size(); i++)
             boxDeleteEmployee.addItem(employees.get(i).getFullName());
+
+        }
     }
 
     public Button addClickEmployeeEditButton(Button buttonEdit, VerticalLayout layout)
@@ -270,14 +278,7 @@ public class EmployeeController
                 employeeField.setValue(employee.getFullName());
                 employeeField.setWidth("200px");
                 employeeField.setMaxLength(120);
-                employeeField.addValidator(new AbstractStringValidator("Любые символы кроме цифр")
-                {
-                    @Override
-                    protected boolean isValidValue(String value)
-                    {
-                        return value.matches("[^0-9]+");
-                    }
-                });
+                employeeField.addValidator(validatorMapper.getValidatorFromColumn("full_name"));
 
                 DateField dateField = new DateField();
                 dateField.setCaption("Дата Рождения");
@@ -289,7 +290,7 @@ public class EmployeeController
                 emailField.setValue(employee.getEmail());
                 emailField.setWidth("200px");
                 emailField.setMaxLength(250);
-                emailField.addValidator(new EmailValidator("Некорректный email, используйте формат name@mail.ru"));
+                emailField.addValidator(validatorMapper.getValidatorFromColumn("email"));
 
                 ComboBox companyBox = new ComboBox();
                 companyBox.setNullSelectionAllowed(false);
@@ -344,10 +345,6 @@ public class EmployeeController
         this.companies = companySql.readAll();
     }
 
-    public LocalDate toLocalDate(java.util.Date date)
-    {
-        return LocalDate.of(date.getYear() + 1900, date.getMonth() + 1, date.getDate());
-    }
 
     //Уровень реализации
     public Employee getEmployeeFromName(String employeeFullName, List<Employee> employees)

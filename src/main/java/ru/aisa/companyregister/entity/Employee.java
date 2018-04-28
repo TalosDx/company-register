@@ -79,7 +79,7 @@ public class Employee
     @Override
     public String toString()
     {
-        return "EmployeeController{" +
+        return "EmployeePopUpControllerImpl{" +
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
