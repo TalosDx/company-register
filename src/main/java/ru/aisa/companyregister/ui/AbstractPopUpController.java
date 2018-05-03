@@ -1,10 +1,7 @@
 package ru.aisa.companyregister.ui;
 
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Layout;
+import com.vaadin.ui.*;
 import ru.aisa.companyregister.database.dao.GenericDAO;
 
 import java.util.List;
@@ -48,31 +45,29 @@ public abstract class AbstractPopUpController<T>
      */
     public abstract void updateItemData();
 
-    public abstract void init(Layout layout);
+    public abstract void init(Window windowZ);
 
     /**
      * Окно добавления объекта в таблицу
-     * @param layout - лейаут используется для отображения объектов
+     * @param window - используется для отображения объектов
      */
-    public abstract void displayAddItem(Layout layout);
+    public abstract void displayAddItem(Window window);
 
     /**
      * Окно редактирования объекта
-     * Требует указания поля id
-     * @param layout - лейтаут используется для отображения объектов
+     * @param window - используется для отображения объектов
      * @param item - объект с которым оперируем
      * @param id - ид редактируемого объекта
      */
-    public abstract void displayEditItem(Layout layout, T item);
+    public abstract void displayEditItem(Window window, T item);
 
     /**
      * Окно удаления объекта
-     * Требует указания поля id
-     * @param layout - лейтаут используется для отображения объектов
+     * @param window - используется для отображения объектов
      * @param item - объект с которым оперируем
      * @param id - ид редактируемого объекта
      */
-    public abstract void displayDeleteItem(Layout layout, T item);
+    public abstract void displayDeleteItem(Window window, T item);
 
     protected void clearAction(Layout layout, Component[] components)
     {

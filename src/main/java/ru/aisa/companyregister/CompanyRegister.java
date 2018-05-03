@@ -31,6 +31,7 @@ public class CompanyRegister extends UI
     BeanItemContainer<Company> companyBeanItemContainer;
     Grid employeeGrid, companyGrid;
     TabSheet.Tab employeeTab, companyTab;
+    Button addItem, editItem, deleteItem;
 
     @Override
     protected void init(VaadinRequest request)
@@ -38,24 +39,36 @@ public class CompanyRegister extends UI
         this.getPage().setTitle("Реестр компании и сотрудников");
         setContent(ownContent);
         final HorizontalLayout buttonsLayout = new HorizontalLayout();
-        Button addItem = new Button(LazyUtils.getLangProperties("button.add"));
-        Button editItem = new Button(LazyUtils.getLangProperties("button.edit"));
-        Button deleteItem = new Button(LazyUtils.getLangProperties("button.delete"));
+        addItem = new Button(LazyUtils.getLangProperties("button.add"));
+        editItem = new Button(LazyUtils.getLangProperties("button.edit"));
+        editItem.setEnabled(false);
+        deleteItem = new Button(LazyUtils.getLangProperties("button.delete"));
+        deleteItem.setEnabled(false);
         buttonsLayout.addComponents(addItem, editItem, deleteItem);
+        buttonsLayout.setSpacing(true);
         ownContent.addComponent(buttonsLayout);
         ownContent.addComponent(contentTabs);
         final VerticalLayout companiesLayout = new VerticalLayout();
-        companyGrid = createCompaniesGrid();
-        companiesLayout.addComponent(companyGrid);
         final VerticalLayout employeeLayout = new VerticalLayout();
-        employeeGrid = createEmployeesGrid();
-        employeeLayout.addComponent(employeeGrid);
         buttonsLayout.setSpacing(true);
-
+        ownContent.setSpacing(true);
         contentTabs.setSizeFull();
+
 
         companyTab = contentTabs.addTab(companiesLayout, "Компании");
         employeeTab = contentTabs.addTab(employeeLayout, "Сотрудники");
+        contentTabs.addSelectedTabChangeListener(event ->
+        {
+            companyGrid.deselectAll();
+            employeeGrid.deselectAll();
+            editItem.setEnabled(false);
+            deleteItem.setEnabled(false);
+        });
+
+        companyGrid = createCompaniesGrid();
+        companiesLayout.addComponent(companyGrid);
+        employeeGrid = createEmployeesGrid();
+        employeeLayout.addComponent(employeeGrid);
 
         addItem.addClickListener(event -> actionAddItem());
         editItem.addClickListener(event -> actionEditItem());
@@ -64,6 +77,13 @@ public class CompanyRegister extends UI
     }
 
 
+    public void updateGrids()
+    {
+        employeeBeanItemContainer.removeAllItems();
+        employeeBeanItemContainer.addAll(employeeDAO.readAll());
+        companyBeanItemContainer.removeAllItems();
+        companyBeanItemContainer.addAll(companiesDAO.readAll());
+    }
 
     /**
      * @return возвращает созданный грид для сотрудников
@@ -74,15 +94,35 @@ public class CompanyRegister extends UI
         employeeBeanItemContainer = new BeanItemContainer<Employee>(Employee.class, employees);
         Grid grid = new Grid(employeeBeanItemContainer);
         sortRename(grid, Arrays.asList("id", "fullName", "birthday", "email", "companyName"));
+        checkGridSelectable(grid, employeeTab);
         grid.getColumn("id").setHidden(true);
         grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         grid.setSizeFull();
         grid.setImmediate(true);
         return grid;
     }
+
+    private void checkGridSelectable(Grid grid, TabSheet.Tab tab)
+    {
+        grid.addSelectionListener(event ->
+        {
+            if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), tab))
+                if (grid.getSelectedRow() != null)
+                {
+                    editItem.setEnabled(true);
+                    deleteItem.setEnabled(true);
+                }
+                else
+                {
+                    editItem.setEnabled(false);
+                    deleteItem.setEnabled(false);
+                }
+        });
+    }
+
     private void sortRename(Grid grid, List<String> orderList)
     {
-        for (int i=orderList.size()-1; i>0; i--)
+        for (int i = orderList.size() - 1; i > 0; i--)
         {
             grid.setColumnOrder(orderList.get(i));
             grid.getColumn(orderList.get(i)).setHeaderCaption(LazyUtils.getLangProperties(orderList.get(i)));
@@ -97,6 +137,7 @@ public class CompanyRegister extends UI
         ArrayList<Company> companies = (ArrayList<Company>) companiesDAO.readAll();
         companyBeanItemContainer = new BeanItemContainer<Company>(Company.class, companies);
         Grid grid = new Grid(companyBeanItemContainer);
+        checkGridSelectable(grid, companyTab);
         sortRename(grid, Arrays.asList("id", "companyName", "inn", "address", "phone"));
         grid.getColumn("id").setHidden(true);
         grid.setSelectionMode(Grid.SelectionMode.SINGLE);
@@ -144,8 +185,8 @@ public class CompanyRegister extends UI
             window = createWindow(str);
             VerticalLayout verticalLayout = new VerticalLayout();
             window.setContent(verticalLayout);
-            controller.init(verticalLayout);
-            controller.displayAddItem(verticalLayout);
+            controller.init(window);
+            controller.displayAddItem(window);
         }
         if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab))
         {
@@ -154,11 +195,12 @@ public class CompanyRegister extends UI
             window = createWindow(str);
             VerticalLayout verticalLayout = new VerticalLayout();
             window.setContent(verticalLayout);
-            controller.init(verticalLayout);
-            controller.displayAddItem(verticalLayout);
+            controller.init(window);
+            controller.displayAddItem(window);
         }
-        if(window != null)
+        if (window != null)
             this.addWindow(window);
+        window.setModal(true);
         return window;
     }
 
@@ -178,7 +220,7 @@ public class CompanyRegister extends UI
         String str;
         Window window = null;
 
-        if(contentTabs.getTab(contentTabs.getSelectedTab()) != null)
+        if (contentTabs.getTab(contentTabs.getSelectedTab()) != null)
         {
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab) && companyGrid.getSelectedRow() != null)
             {
@@ -187,8 +229,9 @@ public class CompanyRegister extends UI
                 window = createWindow(str);
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
-                controller.init(verticalLayout);
-                controller.displayEditItem(verticalLayout, (Company) companyGrid.getSelectedRow());
+                controller.init(window);
+                controller.displayEditItem(window, (Company) companyGrid.getSelectedRow());
+                companyGrid.deselectAll();
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
             {
@@ -197,12 +240,14 @@ public class CompanyRegister extends UI
                 window = createWindow(str);
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
-                controller.init(verticalLayout);
-                controller.displayEditItem(verticalLayout, (Employee) employeeGrid.getSelectedRow());
+                controller.init(window);
+                controller.displayEditItem(window, (Employee) employeeGrid.getSelectedRow());
+                employeeGrid.deselectAll();
             }
         }
-        if(window != null)
+        if (window != null)
             this.addWindow(window);
+        window.setModal(true);
         // controller.displayEditItem(tabItemEditVertical, grid.getSelectedRow());
 
     }
@@ -213,7 +258,7 @@ public class CompanyRegister extends UI
         String str;
         Window window = null;
 
-        if(contentTabs.getTab(contentTabs.getSelectedTab()) != null)
+        if (contentTabs.getTab(contentTabs.getSelectedTab()) != null)
         {
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab) && companyGrid.getSelectedRow() != null)
             {
@@ -222,8 +267,9 @@ public class CompanyRegister extends UI
                 window = createWindow(str);
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
-                controller.init(verticalLayout);
-                controller.displayDeleteItem(verticalLayout, (Company) companyGrid.getSelectedRow());
+                controller.init(window);
+                controller.displayDeleteItem(window, (Company) companyGrid.getSelectedRow());
+                companyGrid.deselectAll();
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
             {
@@ -232,12 +278,14 @@ public class CompanyRegister extends UI
                 window = createWindow(str);
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
-                controller.init(verticalLayout);
-                controller.displayDeleteItem(verticalLayout, (Employee) employeeGrid.getSelectedRow());
+                controller.init(window);
+                controller.displayDeleteItem(window, (Employee) employeeGrid.getSelectedRow());
+                employeeGrid.deselectAll();
             }
         }
-        if(window != null)
-        this.addWindow(window);
+        if (window != null)
+            this.addWindow(window);
+        window.setModal(true);
         //NPE maybe
         //controller.displayDeleteItem(tabItemDeleteVertical, grid.getSelectedRow());
 

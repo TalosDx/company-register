@@ -25,7 +25,7 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
     }
 
     @Override
-    public void init(Layout layout)
+    public void init(Window window)
     {
     }
 
@@ -49,8 +49,9 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
     }
 
     @Override
-    public void displayAddItem(Layout layout)
+    public void displayAddItem(Window window)
     {
+        Layout layout = (Layout) window.getContent();
         TextField companyField = new TextField();
         companyField.setCaption(LazyUtils.getLangProperties("companyName") + ": ");
         companyField.setWidth("200px");
@@ -80,6 +81,7 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
         cancelButton.addClickListener(event1 ->
         {
             clearFields(new TextField[]{companyField, innField, addressField, phoneField});
+            window.close();
         });
         saveButton.addClickListener(event1 ->
         {
@@ -91,6 +93,7 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
                 clearFields(new TextField[]{companyField, innField, addressField, phoneField});
                 if (code == 1)
                     Notification.show("Компания: " + employee.getCompanyName() + " успешно добавлена!");
+                window.close();
             }
         });
         layout.addComponents(companyField, innField, addressField, phoneField, cancelButton, saveButton);
@@ -99,8 +102,9 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
 
 
     @Override
-    public void displayEditItem(Layout layout, Company company)
+    public void displayEditItem(Window window, Company company)
     {
+        Layout layout = (Layout) window.getContent();
         TextField companyField = new TextField();
         companyField.setCaption(LazyUtils.getLangProperties("companyName") + ": ");
         companyField.setValue(company.getCompanyName());
@@ -135,6 +139,7 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
         cancelButton.addClickListener(event1 ->
         {
             super.clearAction(layout, new Component[]{companyField, innField, addressField, phoneField, saveButton, cancelButton});
+            window.close();
         });
         saveButton.addClickListener(event1 ->
         {
@@ -147,6 +152,7 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
                 this.getDAO().updateById(company, company.getId());
                 updateItemData();
                 super.clearAction(layout, new Component[]{companyField, innField, addressField, phoneField, saveButton, cancelButton});
+                window.close();
             }
         });
         layout.addComponents(companyField, innField, addressField, phoneField, cancelButton, saveButton);
@@ -154,9 +160,9 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
     }
 
     @Override
-    public void displayDeleteItem(Layout layout, Company company)
+    public void displayDeleteItem(Window window, Company company)
     {
-
+        Layout layout = (Layout) window.getContent();
         Label companyField = new Label();
         companyField.setCaption(LazyUtils.getLangProperties("companyName") + ": " + company.getCompanyName());
         companyField.setWidth("200px");
@@ -172,7 +178,6 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
 
         Label phoneField = new Label();
         phoneField.setCaption(LazyUtils.getLangProperties("phone") + ": " + company.getPhone());
-        phoneField.setValue(company.getPhone());
         phoneField.setWidth("200px");
 
         Button deleteButton = new Button(LazyUtils.getLangProperties("button.delete"));
@@ -180,14 +185,14 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
         cancelButton.addClickListener(event1 ->
         {
             super.clearAction(layout, new Component[]{companyField, innField, addressField, phoneField, deleteButton, cancelButton});
-
+            window.close();
         });
         deleteButton.addClickListener(event1 ->
         {
             this.getDAO().deleteByID(company.getId());
             updateItemData();
             super.clearAction(layout, new Component[]{companyField, innField, addressField, phoneField, deleteButton, cancelButton});
-
+            window.close();
         });
         layout.addComponents(companyField, innField, addressField, phoneField, cancelButton, deleteButton);
     }

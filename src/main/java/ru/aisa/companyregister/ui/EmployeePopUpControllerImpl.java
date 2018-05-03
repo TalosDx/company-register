@@ -42,49 +42,38 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
     }
 
     @Override
-    public void init(Layout layout)
+    public void init(Window window)
     {
-        TabSheet tabsEmployee = new TabSheet();
-        tabsEmployee.setHeight("100%");
-        layout.addComponent(tabsEmployee);
-
         this.updateItemData();
-        final VerticalLayout tabCompanyList = new VerticalLayout();
-        final HorizontalLayout tabCompanyEditHorizontal = new HorizontalLayout();
-        final VerticalLayout tabCompanyEditVertical = new VerticalLayout();
-        tabCompanyList.setMargin(true);
-
-
-        tabsEmployee.setSizeFull();
-        tabCompanyEditVertical.addComponent(tabCompanyEditHorizontal);
     }
 
     /**
      * Размещает компоненты в Window, и управляет их логикой
      *
-     * @param layout - лейаут используется для отображения объектов
+     * @param window - используется для отображения объектов
      */
     @Override
-    public void displayAddItem(Layout layout)
+    public void displayAddItem(Window window)
     {
+        Layout layout = (Layout) window.getContent();
         TextField employeeField = new TextField();
-        employeeField.setCaption(LazyUtils.getLangProperties("fullName" + ": "));
+        employeeField.setCaption(LazyUtils.getLangProperties("fullName" ) + ": ");
         employeeField.setWidth("200px");
         employeeField.setMaxLength(120);
         employeeField.addValidator(validatorMapper.getValidatorFromColumn("full_name"));
 
         DateField dateField = new DateField();
-        dateField.setCaption(LazyUtils.getLangProperties("birthday" + ": "));
+        dateField.setCaption(LazyUtils.getLangProperties("birthday") + ": ");
         dateField.setWidth("200px");
 
         TextField emailField = new TextField();
-        emailField.setCaption(LazyUtils.getLangProperties("email" + ": "));
+        emailField.setCaption(LazyUtils.getLangProperties("email") + ": ");
         emailField.setWidth("200px");
         emailField.setMaxLength(250);
         emailField.addValidator(validatorMapper.getValidatorFromColumn("email"));
 
-        ComboBox companyBox = new ComboBox();
-        companyBox.setWidth(300, Sizeable.Unit.PIXELS);
+        ComboBox companyBox = new ComboBox(LazyUtils.getLangProperties("companyName") + ": ");
+        companyBox.setWidth("200px");
         companyBox.setNullSelectionAllowed(false);
 
         companies.stream().map(Company::getCompanyName).forEach(companyBox::addItem);
@@ -94,10 +83,8 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         Button cancelButton = new Button(LazyUtils.getLangProperties("button.cancel"));
         cancelButton.addClickListener(event1 ->
         {
-            employeeField.clear();
-            dateField.clear();
-            emailField.clear();
-            companyBox.clear();
+            clearFields(new Field[]{employeeField, dateField, emailField, companyBox});
+            window.close();
         });
         saveButton.addClickListener(event1 ->
         {
@@ -108,7 +95,10 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
                 updateEmployeesTable();
                 clearFields(new Field[]{employeeField, dateField, emailField, companyBox});
                 if (code == 1)
+                {
                     Notification.show("Сотрудник: " + employee.getFullName() + " успешно добавлен!");
+                }
+                window.close();
             }
         });
         layout.addComponents(employeeField, dateField, emailField, companyBox, cancelButton, saveButton);
@@ -116,8 +106,9 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
     }
 
     @Override
-    public void displayEditItem(Layout layout, Employee employee)
+    public void displayEditItem(Window window, Employee employee)
     {
+        Layout layout = (Layout) window.getContent();
         TextField employeeField = new TextField();
         employeeField.setCaption(LazyUtils.getLangProperties("fullName") + ": ");
         employeeField.setValue(employee.getFullName());
@@ -137,7 +128,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         emailField.setMaxLength(250);
         emailField.addValidator(validatorMapper.getValidatorFromColumn("email"));
 
-        ComboBox companyBox = new ComboBox();
+        ComboBox companyBox = new ComboBox(LazyUtils.getLangProperties("companyName") + ": ");
         companyBox.setWidth("200px");
         companyBox.setNullSelectionAllowed(false);
 
@@ -148,7 +139,10 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         Button saveButton = new Button(LazyUtils.getLangProperties("button.save"));
         Button cancelButton = new Button(LazyUtils.getLangProperties("button.cancel"));
         cancelButton.addClickListener(event1 ->
-                clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton}));
+        {
+            clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
+            window.close();
+        });
         saveButton.addClickListener(event1 ->
         {
             if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.getValue() != null)
@@ -160,6 +154,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
                 this.getDAO().updateById(employee, (int) employee.getId());
                 updateEmployeesTable();
                 clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
+                window.close();
             }
         });
         layout.addComponents(employeeField, dateField, emailField, companyBox, cancelButton, saveButton);
@@ -167,8 +162,9 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
     }
 
     @Override
-    public void displayDeleteItem(Layout layout, Employee employee)
+    public void displayDeleteItem(Window window, Employee employee)
     {
+        Layout layout = (Layout) window.getContent();
         Label employeeField = new Label();
         employeeField.setCaption(LazyUtils.getLangProperties("fullName") + ": " + employee.getFullName());
         employeeField.setWidth("200px");
@@ -191,6 +187,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         {
 
             clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, deleteButton, cancelButton});
+            window.close();
         });
         deleteButton.addClickListener(event1 ->
         {
@@ -198,6 +195,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
             this.getDAO().deleteByID(employee.getId());
             updateEmployeesTable();
             clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, deleteButton, cancelButton});
+            window.close();
 
         });
         layout.addComponents(employeeField, dateField, emailField, companyBox, cancelButton, deleteButton);
