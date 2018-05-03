@@ -10,7 +10,8 @@ public class CompanyGenericDAOImpl implements GenericDAO<Company>
     AbstractTableDAO sqlExecutor = new TableDAOImpl();
     final String[] columns = new String[]{"id", "company_name", "inn", "address", "phone"};
     final String[] columnsWithID = new String[]{"company_name", "inn", "address", "phone"};
-    final Class<?>[] types = new Class[]{String.class, Long.class, String.class, String.class};
+    final Class<?>[] types = new Class[]{Integer.class, String.class, Long.class, String.class, String.class};
+    final Class<?>[] typesWithoutId = new Class[]{String.class, Long.class, String.class, String.class};
     final String tableName = "companies";
 
     @Override
@@ -85,6 +86,12 @@ public class CompanyGenericDAOImpl implements GenericDAO<Company>
     public Class<?>[] getTableTypes()
     {
         return types;
+    }
+
+    @Override
+    public Class<?>[] getTableTypesWithoutId()
+    {
+        return typesWithoutId;
     }
 
     @Override

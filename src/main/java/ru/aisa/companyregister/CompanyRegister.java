@@ -1,5 +1,8 @@
 package ru.aisa.companyregister;
 
+import com.vaadin.data.Container;
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.ItemSorter;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import ru.aisa.companyregister.database.dao.CompanyGenericDAOImpl;
@@ -9,10 +12,11 @@ import ru.aisa.companyregister.database.dao.entities.Company;
 import ru.aisa.companyregister.database.dao.entities.Employee;
 import ru.aisa.companyregister.ui.AbstractPopUpController;
 import ru.aisa.companyregister.ui.CompaniesPopUpControllerImpl;
+import ru.aisa.companyregister.ui.EmployeePopUpControllerImpl;
 import ru.aisa.companyregister.utils.LazyUtils;
 
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,11 +24,13 @@ public class CompanyRegister extends UI
 {
     private AbstractPopUpController controller;
     private final VerticalLayout ownContent = new VerticalLayout();
-    private Grid grid = new Grid();
     private TabSheet contentTabs = new TabSheet();
-    private GenericDAO genericDAO;
     private GenericDAO companiesDAO = new CompanyGenericDAOImpl();
     private GenericDAO employeeDAO = new EmployeeGenericDAOImpl();
+    BeanItemContainer<Employee> employeeBeanItemContainer;
+    BeanItemContainer<Company> companyBeanItemContainer;
+    Grid employeeGrid, companyGrid;
+    TabSheet.Tab employeeTab, companyTab;
 
     @Override
     protected void init(VaadinRequest request)
@@ -32,52 +38,31 @@ public class CompanyRegister extends UI
         this.getPage().setTitle("Реестр компании и сотрудников");
         setContent(ownContent);
         final HorizontalLayout buttonsLayout = new HorizontalLayout();
-        Button addItem = new Button();
-        Button editItem = new Button();
-        Button deleteItem = new Button();
+        Button addItem = new Button(LazyUtils.getLangProperties("button.add"));
+        Button editItem = new Button(LazyUtils.getLangProperties("button.edit"));
+        Button deleteItem = new Button(LazyUtils.getLangProperties("button.delete"));
         buttonsLayout.addComponents(addItem, editItem, deleteItem);
         ownContent.addComponent(buttonsLayout);
         ownContent.addComponent(contentTabs);
         final VerticalLayout companiesLayout = new VerticalLayout();
-        Grid companyGrid = createCompaniesGrid();
+        companyGrid = createCompaniesGrid();
         companiesLayout.addComponent(companyGrid);
         final VerticalLayout employeeLayout = new VerticalLayout();
-        Grid employeeGrid = createEmployeesGrid();
+        employeeGrid = createEmployeesGrid();
         employeeLayout.addComponent(employeeGrid);
         buttonsLayout.setSpacing(true);
 
         contentTabs.setSizeFull();
 
-        contentTabs.addTab(companiesLayout, "Компании");
-        contentTabs.addTab(employeeLayout, "Сотрудники");
+        companyTab = contentTabs.addTab(companiesLayout, "Компании");
+        employeeTab = contentTabs.addTab(employeeLayout, "Сотрудники");
 
+        addItem.addClickListener(event -> actionAddItem());
+        editItem.addClickListener(event -> actionEditItem());
+        deleteItem.addClickListener(event -> actionDeleteItem());
 
-        contentTabs.addSelectedTabChangeListener(selectedTabChangeEvent ->
-        {
-            if (Objects.equals(contentTabs.getSelectedTab().getCaption(), "Компании"))
-            {
-                genericDAO = new CompanyGenericDAOImpl();
-                controller.init(ownContent);
-                controller = new CompaniesPopUpControllerImpl(genericDAO, new EmployeeGenericDAOImpl());
-                grid = LazyUtils.createGrid(new String[]{"company_name", "inn", "address", "phone"}, new Class<?>[]{String.class, Integer.class, String.class, String.class});
-                addItem.addClickListener(event -> actionAddItem(controller));
-                editItem.addClickListener(event -> actionEditItem(controller));
-                deleteItem.addClickListener(event -> actionDeleteItem(controller));
-            }
-            if (Objects.equals(contentTabs.getSelectedTab().getCaption(), "Сотрудники"))
-            {
-                genericDAO = new EmployeeGenericDAOImpl();
-                controller.init(ownContent);
-                //controller = new EmployeePopUpControllerImpl(genericDAO, (new CompanyGenericDAOImpl).read);
-                grid = LazyUtils.createGrid(new String[]{"full_name", "birthday", "email", "company_name"}, new Class<?>[]{String.class, Date.class, String.class, String.class});
-                int size = genericDAO.getCount();
-
-                addItem.addClickListener(event -> actionAddItem(controller));
-                editItem.addClickListener(event -> actionEditItem(controller));
-                deleteItem.addClickListener(event -> actionDeleteItem(controller));
-            }
-        });
     }
+
 
 
     /**
@@ -85,11 +70,23 @@ public class CompanyRegister extends UI
      */
     private Grid createEmployeesGrid()
     {
-        Grid grid = createGrid(employeeDAO.getTableColumnsWithoutId(), employeeDAO.getTableTypes());
         ArrayList<Employee> employees = (ArrayList<Employee>) employeeDAO.readAll();
-        for (Employee employee : employees)
-            injectDataToGrid(grid, new Object[]{employee.getFullName(), employee.getBirthday(), employee.getEmail(), employee.getCompanyName()});
+        employeeBeanItemContainer = new BeanItemContainer<Employee>(Employee.class, employees);
+        Grid grid = new Grid(employeeBeanItemContainer);
+        sortRename(grid, Arrays.asList("id", "fullName", "birthday", "email", "companyName"));
+        grid.getColumn("id").setHidden(true);
+        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        grid.setSizeFull();
+        grid.setImmediate(true);
         return grid;
+    }
+    private void sortRename(Grid grid, List<String> orderList)
+    {
+        for (int i=orderList.size()-1; i>0; i--)
+        {
+            grid.setColumnOrder(orderList.get(i));
+            grid.getColumn(orderList.get(i)).setHeaderCaption(LazyUtils.getLangProperties(orderList.get(i)));
+        }
     }
 
     /**
@@ -97,10 +94,14 @@ public class CompanyRegister extends UI
      */
     private Grid createCompaniesGrid()
     {
-        Grid grid = createGrid(companiesDAO.getTableColumnsWithoutId(), companiesDAO.getTableTypes());
         ArrayList<Company> companies = (ArrayList<Company>) companiesDAO.readAll();
-        for (Company company : companies)
-            injectDataToGrid(grid, new Object[]{company.getCompanyName(), company.getInn(), company.getAddress(), company.getPhone()});
+        companyBeanItemContainer = new BeanItemContainer<Company>(Company.class, companies);
+        Grid grid = new Grid(companyBeanItemContainer);
+        sortRename(grid, Arrays.asList("id", "companyName", "inn", "address", "phone"));
+        grid.getColumn("id").setHidden(true);
+        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+        grid.setSizeFull();
+        grid.setImmediate(true);
         return grid;
     }
 
@@ -123,55 +124,120 @@ public class CompanyRegister extends UI
             grid.setImmediate(true);
             for (int i = 0; i < nameColumns.length; i++)
                 grid.addColumn(LazyUtils.getLangProperties(nameColumns[i]), types[i]);
+            if (grid.getColumn("id") != null)
+                grid.getColumn("id").setHidden(true);
             return grid;
         }
     }
 
-    /**
-     * Используется для наполнения данными грида, абстракный метод, не зависит от реализации(ну почти)
-     *
-     * @param data - массив, с данными, формирующий грид.
-     * @param grid - грид для наполнения данными
-     */
-    private void injectDataToGrid(Grid grid, Object[] data)
+
+    private Window actionAddItem()
     {
-        grid.addRow(data);
+        AbstractPopUpController controller;
+        String str;
+        Window window = null;
+
+        if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab))
+        {
+            str = "Добавить компанию";
+            controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
+            window = createWindow(str);
+            VerticalLayout verticalLayout = new VerticalLayout();
+            window.setContent(verticalLayout);
+            controller.init(verticalLayout);
+            controller.displayAddItem(verticalLayout);
+        }
+        if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab))
+        {
+            str = "Добавить сотрудника";
+            controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
+            window = createWindow(str);
+            VerticalLayout verticalLayout = new VerticalLayout();
+            window.setContent(verticalLayout);
+            controller.init(verticalLayout);
+            controller.displayAddItem(verticalLayout);
+        }
+        if(window != null)
+            this.addWindow(window);
+        return window;
     }
 
-    private Window actionAddItem(AbstractPopUpController controller)
+    private Window createWindow(String str)
     {
-        String str = "";
-
-        Window addItem = new Window("Добавление " + str);
-        addItem.setResizable(false);
-        addItem.setImmediate(true);
-        VerticalLayout tabItemAddVertical = new VerticalLayout();
-        addItem.setContent(tabItemAddVertical);
-        //ui.addWindow(addCompany);
-        controller.displayAddItem(tabItemAddVertical);
-
-        return addItem;
+        Window item = new Window(str);
+        item.setResizable(false);
+        item.setWidth(400, Unit.PIXELS);
+        item.setHeight(450, Unit.PIXELS);
+        item.setImmediate(true);
+        return item;
     }
 
-    private void actionEditItem(AbstractPopUpController controller)
+    private void actionEditItem()
     {
-        Window editCompany = new Window("Добавление компании");
-        editCompany.setResizable(false);
-        editCompany.setImmediate(true);
-        VerticalLayout tabItemEditVertical = new VerticalLayout();
-        editCompany.setContent(tabItemEditVertical);
-        //NPE maybe
+        AbstractPopUpController controller;
+        String str;
+        Window window = null;
+
+        if(contentTabs.getTab(contentTabs.getSelectedTab()) != null)
+        {
+            if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab) && companyGrid.getSelectedRow() != null)
+            {
+                str = "Редактировать компанию";
+                controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
+                window = createWindow(str);
+                VerticalLayout verticalLayout = new VerticalLayout();
+                window.setContent(verticalLayout);
+                controller.init(verticalLayout);
+                controller.displayEditItem(verticalLayout, (Company) companyGrid.getSelectedRow());
+            }
+            if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
+            {
+                str = "Редактировать сотрудника";
+                controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
+                window = createWindow(str);
+                VerticalLayout verticalLayout = new VerticalLayout();
+                window.setContent(verticalLayout);
+                controller.init(verticalLayout);
+                controller.displayEditItem(verticalLayout, (Employee) employeeGrid.getSelectedRow());
+            }
+        }
+        if(window != null)
+            this.addWindow(window);
         // controller.displayEditItem(tabItemEditVertical, grid.getSelectedRow());
 
     }
 
-    private void actionDeleteItem(AbstractPopUpController controller)
+    private void actionDeleteItem()
     {
-        Window removeCompany = new Window("Удаление компании");
-        removeCompany.setResizable(false);
-        removeCompany.setImmediate(true);
-        VerticalLayout tabItemDeleteVertical = new VerticalLayout();
-        removeCompany.setContent(tabItemDeleteVertical);
+        AbstractPopUpController controller;
+        String str;
+        Window window = null;
+
+        if(contentTabs.getTab(contentTabs.getSelectedTab()) != null)
+        {
+            if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab) && companyGrid.getSelectedRow() != null)
+            {
+                str = "Удалить компанию";
+                controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
+                window = createWindow(str);
+                VerticalLayout verticalLayout = new VerticalLayout();
+                window.setContent(verticalLayout);
+                controller.init(verticalLayout);
+                controller.displayDeleteItem(verticalLayout, (Company) companyGrid.getSelectedRow());
+            }
+            if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
+            {
+                str = "Удалить сотрудника";
+                controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
+                window = createWindow(str);
+                VerticalLayout verticalLayout = new VerticalLayout();
+                window.setContent(verticalLayout);
+                controller.init(verticalLayout);
+                controller.displayDeleteItem(verticalLayout, (Employee) employeeGrid.getSelectedRow());
+            }
+        }
+        if(window != null)
+        this.addWindow(window);
         //NPE maybe
         //controller.displayDeleteItem(tabItemDeleteVertical, grid.getSelectedRow());
 

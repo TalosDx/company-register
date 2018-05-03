@@ -1,4 +1,4 @@
-package ru.aisa.companyregister.ui;
+package ru.aisa.companyregister.ui.validator;
 
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.AbstractStringValidator;
@@ -39,7 +39,7 @@ public class CompaniesValidatorMapperImpl implements ColumnsValidatorMapper
             @Override
             protected boolean isValidValue(String value)
             {
-                return value.matches("\\+[7-8][8-9][0-9]{2}\\-[0-9]{3}\\-[0-9]{2}\\-[0-9]{2}");
+                return value.matches("\\+[7-8][0-9][0-9]{2}\\-[0-9]{3}\\-[0-9]{2}\\-[0-9]{2}");
             }
         });
 

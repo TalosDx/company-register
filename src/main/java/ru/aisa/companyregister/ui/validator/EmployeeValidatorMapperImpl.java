@@ -1,4 +1,4 @@
-package ru.aisa.companyregister.ui;
+package ru.aisa.companyregister.ui.validator;
 
 import com.vaadin.data.Validator;
 import com.vaadin.data.validator.AbstractStringValidator;
