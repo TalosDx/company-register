@@ -1,15 +1,13 @@
 package ru.aisa.companyregister.database;
 
-import java.util.Objects;
-
-public interface AbstractTableCreator
+interface AbstractTableCreator
 {
     /**
      * Возвращает sql запрос
      * @param tableName - название таблицы
      * @param nameColumns -название колонок
      * @param typeColumns - типы колонок
-     * @return
+     * @return - возвращает сформированный sql запрос в виде String
      */
     String getCreateRequest(String tableName, String[] nameColumns, String[] typeColumns);
 

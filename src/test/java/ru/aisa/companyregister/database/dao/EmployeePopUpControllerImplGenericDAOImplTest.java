@@ -1,19 +1,17 @@
 package ru.aisa.companyregister.database.dao;
 
 import org.junit.jupiter.api.Test;
-import ru.aisa.companyregister.entity.Employee;
+import ru.aisa.companyregister.database.dao.entities.Employee;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class EmployeeControllerGenericDAOImplTest
+class EmployeePopUpControllerImplGenericDAOImplTest
 {
 
-    Employee employee = new Employee("Simon Ivanovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "ПАО_Builders_and_Cars and Cats");
-    Employee employee1 = new Employee("Kamina Evckovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "OAO MetaPhone");
+    private final Employee employee = new Employee("Simon Ivanovich", LocalDate.of(1984, 2, 21), "ivan@mail.ru", "ПАО_Builders_and_Cars and Cats");
+    private final Employee employee1 = new Employee("Kamina Evckovich", LocalDate.of(1984, 2, 21), "ivan@mail.ru", "OAO MetaPhone");
 
-    GenericDAO genericDAO = new EmployeeGenericDAOImpl();
+    private final GenericDAO genericDAO = new EmployeeGenericDAOImpl();
 
     @Test
     void create()
@@ -66,13 +64,4 @@ class EmployeeControllerGenericDAOImplTest
         System.out.print(genericDAO.deleteWithoutID(employee));
     }
 
-    @Test
-    void getTableColumns()
-    {
-    }
-
-    @Test
-    void getTableName()
-    {
-    }
 }

@@ -1,6 +1,5 @@
 package ru.aisa.companyregister.database.dao;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -60,6 +59,25 @@ public interface GenericDAO<T>
      * @return - возвращает массив с именами колонок
      */
     String[] getTableColumns();
+
+    /**
+     * @return - возвращает массив с именами колонок без id
+     */
+    String[] getTableColumnsWithoutId();
+
+
+    /**
+     * Возвращает типы данных в виде классов для каждой колонки в таблице
+     * @return - возвращает все java-типы колонок для таблицы
+     */
+    Class<?>[] getTableTypes();
+
+    /**
+     * Возвращает типы данных в виде классов для каждой колонки в таблице за исключением id
+     * @return - возвращает все java-типы колонок для таблицы, кроме id
+     */
+    Class<?>[] getTableTypesWithoutId();
+
 
     /**
      * @return -Возвращает имя таблицы

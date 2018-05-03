@@ -1,7 +1,7 @@
 package ru.aisa.companyregister.database.dao.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
-import ru.aisa.companyregister.entity.Company;
+import ru.aisa.companyregister.database.dao.entities.Company;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

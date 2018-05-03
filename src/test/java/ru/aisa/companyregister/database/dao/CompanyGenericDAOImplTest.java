@@ -1,15 +1,15 @@
 package ru.aisa.companyregister.database.dao;
 
 import org.junit.jupiter.api.Test;
-import ru.aisa.companyregister.entity.Company;
+import ru.aisa.companyregister.database.dao.entities.Company;
 
 class CompanyGenericDAOImplTest
 {
 
-    Company company = new Company("OAO Bobrs and Cats", 51214, "г. Бобруйск, улица Бобров, д.6", "+7981-812-15-15");
-    Company company1 = new Company("OAO Bobrs and Cats", 51214, "г. Бобруйск, улица Бобров, д.6", "+7981-812-15-15");
+    private final Company company = new Company("OAO Beavers and Cats", 51214, "г. Бобруйск, улица Бобров, д.6", "+7981-812-15-15");
+    private final Company company1 = new Company("OAO Beavers and Cats", 51214, "г. Бобруйск, улица Бобров, д.6", "+7981-812-15-15");
 
-    GenericDAO genericDAO = new CompanyGenericDAOImpl();
+    private final GenericDAO genericDAO = new CompanyGenericDAOImpl();
 
     @Test
     void create()
@@ -62,13 +62,4 @@ class CompanyGenericDAOImplTest
         System.out.print(genericDAO.deleteWithoutID(company));
     }
 
-    @Test
-    void getTableColumns()
-    {
-    }
-
-    @Test
-    void getTableName()
-    {
-    }
 }

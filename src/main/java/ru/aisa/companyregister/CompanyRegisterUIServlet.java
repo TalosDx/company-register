@@ -4,8 +4,6 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.VaadinServlet;
 import ru.aisa.companyregister.database.DBConnector;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
 @WebServlet(urlPatterns = "/*", name = "CompanyRegisterUIServlet", asyncSupported = true, displayName = "CompanyRegister")

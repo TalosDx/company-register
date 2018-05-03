@@ -12,11 +12,11 @@ import java.util.List;
 
 public class DBConnector
 {
-    public static final String COMPANIES_TABLE = "companies";
-    public static final String EMPLOYEE_TABLE = "employee";
+    private static final String COMPANIES_TABLE = "companies";
+    private static final String EMPLOYEE_TABLE = "employee";
     private static Connection connection;
     private static Statement statement;
-    private static AbstractTableCreator tableCreator = new TableCreatorImpl();
+    private static final AbstractTableCreator tableCreator = new TableCreatorImpl();
 
     public static void createTable()
     {
@@ -30,8 +30,8 @@ public class DBConnector
             System.out.println("Connection established");
             statement = connection.createStatement();
             tableCreator.setIfNotExists(true);
-            final String createCompany = tableCreator.getCreateRequest(COMPANIES_TABLE, new String[]{"id", "COMPANY_NAME", "INN", "ADDRESS", "PHONE"}, new String[]{"serial primary key", "char(120)", "integer", "char(250)", "char(15)"});
-            final String createEmployee = tableCreator.getCreateRequest(EMPLOYEE_TABLE, new String[]{"id", "FULL_NAME", "BIRTHDAY", "EMAIL", "COMPANY_NAME"}, new String[]{"serial primary key", "char(40)", "date", "char(30)", "char(120)"});
+            final String createCompany = tableCreator.getCreateRequest(COMPANIES_TABLE, new String[]{"id", "COMPANY_NAME", "INN", "ADDRESS", "PHONE"}, new String[]{"serial primary key", "char(120) primary key", "integer", "char(250)", "char(15)"});
+            final String createEmployee = tableCreator.getCreateRequest(EMPLOYEE_TABLE, new String[]{"id", "FULL_NAME", "BIRTHDAY", "EMAIL", "COMPANY_NAME"}, new String[]{"serial primary key", "char(40)", "date", "char(30)", "char(120) REFERENCES " + COMPANIES_TABLE });
 
                 System.out.println(createCompany);
                 statement.executeUpdate(createCompany);
@@ -63,7 +63,7 @@ public class DBConnector
         }
     }
 
-    public static NamedParameterJdbcTemplate getCrateNPJT()
+    private static NamedParameterJdbcTemplate getCrateNPJT()
     {
         String url = "jdbc:" + LazyUtils.getProperties("host") + ":" + LazyUtils.getProperties("port") + "/" + LazyUtils.getProperties("database");
         String username = LazyUtils.getProperties("username");

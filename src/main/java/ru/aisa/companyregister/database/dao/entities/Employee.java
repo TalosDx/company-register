@@ -1,4 +1,4 @@
-package ru.aisa.companyregister.entity;
+package ru.aisa.companyregister.database.dao.entities;
 
 import java.time.LocalDate;
 
@@ -79,7 +79,7 @@ public class Employee
     @Override
     public String toString()
     {
-        return "EmployeeController{" +
+        return "EmployeePopUpControllerImpl{" +
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
