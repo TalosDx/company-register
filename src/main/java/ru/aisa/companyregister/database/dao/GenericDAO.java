@@ -62,6 +62,17 @@ public interface GenericDAO<T>
     String[] getTableColumns();
 
     /**
+     * @return - возвращает массив с именами колонок без id
+     */
+    String[] getTableColumnsWithoutId();
+
+
+    /**
+     * Возвращает типы данных в виде классов для каждой колонки в таблице за исключением id
+     * @return
+     */
+    Class<?>[] getTableTypes();
+    /**
      * @return -Возвращает имя таблицы
      */
     String getTableName();

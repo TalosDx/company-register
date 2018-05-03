@@ -1,60 +1,57 @@
 package ru.aisa.companyregister.ui;
 
-import com.vaadin.data.validator.AbstractStringValidator;
-import com.vaadin.data.validator.EmailValidator;
-import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
-import ru.aisa.companyregister.database.dao.CompanyGenericDAOImpl;
-import ru.aisa.companyregister.database.dao.EmployeeGenericDAOImpl;
 import ru.aisa.companyregister.database.dao.GenericDAO;
-import ru.aisa.companyregister.entity.Company;
-import ru.aisa.companyregister.entity.Employee;
-import ru.aisa.companyregister.utils.LazyUtils;
+import ru.aisa.companyregister.database.dao.entities.Employee;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 
 import static ru.aisa.companyregister.utils.LazyUtils.toLocalDate;
 
-public class EmployeePopUpControllerImpl implements AbstractPopUpController<Employee>
+public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employee>
 {
-    private GenericDAO<Employee> employeeSql = new EmployeeGenericDAOImpl();
     private List<Employee> employees;
-    private Table tableEmployee = new Table();
     private Grid gridEmployee = new Grid();
-    private ComboBox boxEditEmployee = new ComboBox();
-    private ComboBox boxDeleteEmployee = new ComboBox();
-    GenericDAO<Company> companySql = new CompanyGenericDAOImpl();
-    private List<Company> companies;
-    ColumnsValidatorMapper validatorMapper = new EmployeeValidatorMapperImpl();
+    private ComboBox boxEdit = new ComboBox();
+    private ComboBox boxDelete = new ComboBox();
+    private String[] companyNames;
+    private ColumnsValidatorMapper validatorMapper = new EmployeeValidatorMapperImpl();
+
+    /**
+     * Обязательный конструктор для указания genericDao с которым работаем
+     *
+     * @param genericDAO - используется для управлением объектом такому как добавление объекта или его редактирование или удаления
+     */
+    public EmployeePopUpControllerImpl(GenericDAO<Employee> genericDAO, String[] companyNames)
+    {
+        super(genericDAO);
+        this.companyNames = companyNames;
+    }
 
 
     @Override
     public void updateItemData()
     {
-
+        updateEmployeesTable();
     }
 
     @Override
     public void init(Layout layout)
     {
-        updateCompanyTables();
         TabSheet tabsEmployee = new TabSheet();
         tabsEmployee.setHeight("100%");
         layout.addComponent(tabsEmployee);
-        gridEmployee = LazyUtils.createGrid(new String[]{"full_name", "birthday", "email", "company_name"}, new Class<?>[]{String.class, Date.class, String.class, String.class});
 
-        this.updateEmployeesCollection();
-        this.createCompanyTable();
+        this.updateItemData();
         final VerticalLayout tabCompanyList = new VerticalLayout();
         final HorizontalLayout tabCompanyEditHorizontal = new HorizontalLayout();
         final VerticalLayout tabCompanyEditVertical = new VerticalLayout();
         final VerticalLayout tabCompanyAddVertical = new VerticalLayout();
         final VerticalLayout tabCompanyDeleteVertical = new VerticalLayout();
         tabCompanyList.setMargin(true);
-        boxEditEmployee.setImmediate(true);
-        boxDeleteEmployee.setImmediate(true);
+        boxEdit.setImmediate(true);
+        boxDelete.setImmediate(true);
 
 
 
@@ -64,10 +61,9 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
         createDeleteEmployeeButton(tabCompanyDeleteVertical);
         
         tabsEmployee.setSizeFull();
-        this.getBoxEditEmployee().setNullSelectionAllowed(false);
-        tabCompanyList.addComponent(this.getTableEmployee());
+        boxEdit.setNullSelectionAllowed(false);
         tabCompanyEditVertical.addComponent(tabCompanyEditHorizontal);
-        tabCompanyEditHorizontal.addComponent(this.getBoxEditEmployee());
+        tabCompanyEditHorizontal.addComponent(boxEdit);
         Button buttonEdit = new Button("Редактировать");
         tabCompanyEditHorizontal.addComponent(buttonEdit);
 
@@ -82,29 +78,29 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
     }
 
     @Override
-    public void displayEditItem(Layout layout, Employee item)
+    public void displayEditItem(Layout layout, Employee item, int id)
     {
 
     }
 
     @Override
-    public void displayDeleteItem(Layout layout, Employee item)
+    public void displayDeleteItem(Layout layout, Employee item, int id)
     {
 
     }
 
     public void createDeleteEmployeeButton(Layout layout)
     {
-        layout.addComponent(boxDeleteEmployee);
+        layout.addComponent(boxDelete);
         Button buttonChoose = new Button("Выбрать");
         layout.addComponent(buttonChoose);
         buttonChoose.addClickListener(event ->
         {
-            if (getEmployeeFromName(boxDeleteEmployee.getValue().toString(), employees) != null && !boxDeleteEmployee.isReadOnly())
+            Employee employee = getItemFromName(boxDelete.getValue().toString(), employees);
+            if (employee != null && !boxDelete.isReadOnly())
             {
-                boxDeleteEmployee.setReadOnly(true);
+                boxDelete.setReadOnly(true);
                 buttonChoose.setEnabled(false);
-                Employee employee = getEmployeeFromName(boxDeleteEmployee.getValue().toString(), employees);
                 Label employeeField = new Label();
                 employeeField.setCaption("ФИО: " + employee.getFullName());
                 employeeField.setWidth("200px");
@@ -125,7 +121,7 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
                 Button cancelButton = new Button("Отменить");
                 cancelButton.addClickListener(event1 ->
                 {
-                    boxDeleteEmployee.setReadOnly(false);
+                    boxDelete.setReadOnly(false);
                     buttonChoose.setEnabled(true);
                     layout.removeComponent(employeeField);
                     layout.removeComponent(dateField);
@@ -138,9 +134,9 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
                 deleteButton.addClickListener(event1 ->
                 {
 
-                        boxDeleteEmployee.setReadOnly(false);
+                        boxDelete.setReadOnly(false);
                         buttonChoose.setEnabled(true);
-                        employeeSql.deleteByID(employee.getId());
+                        this.getDAO().deleteByID(employee.getId());
                         updateEmployeesTable();
                         layout.removeComponent(employeeField);
                         layout.removeComponent(dateField);
@@ -177,8 +173,8 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
 
             ComboBox companyBox = new ComboBox();
             companyBox.setNullSelectionAllowed(false);
-            for (int i = 0; i < companies.size(); i++)
-                companyBox.addItem(companies.get(i).getCompanyName());
+            for (int i = 0; i < companyNames.length; i++)
+                companyBox.addItem(companyNames[i]);
 
 
             Button saveButton = new Button("Сохранить");
@@ -195,7 +191,7 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
                 if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.getValue() != null)
                 {
                     Employee employee = new Employee(employeeField.getValue(), toLocalDate(dateField.getValue()), emailField.getValue(), (String) companyBox.getValue());
-                    int code = employeeSql.create(employee);
+                    int code = this.getDAO().create(employee);
                     updateEmployeesTable();
                     employeeField.clear();
                     dateField.clear();
@@ -210,69 +206,43 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
         }
     }
 
-    public Window createWindowCompanies()
-    {
-        Window windowCompanies = new Window("Сотрудники");
-        windowCompanies.setWidth(800, Sizeable.Unit.PIXELS);
-        windowCompanies.setHeight(400, Sizeable.Unit.PIXELS);
-        windowCompanies.setClosable(true);
-        windowCompanies.setResizable(false);
-        return windowCompanies;
-    }
-
-    public Table createCompanyTable()
-    {
-        tableEmployee.setSelectable(false);
-        tableEmployee.setImmediate(true);
-
-        tableEmployee.addContainerProperty("ФИО", String.class, null);
-        tableEmployee.addContainerProperty("Дата Рождения", LocalDate.class, null);
-        tableEmployee.addContainerProperty("Email", String.class, null);
-        tableEmployee.addContainerProperty("Имя Компании", String.class, null);
-
-        updateEmployeesTable();
-        tableEmployee.setPageLength(tableEmployee.size());
-        return tableEmployee;
-    }
-
-
-    /**
-     * Обновляет только коллекцию с сотрудниками
-     */
-    public void updateEmployeesCollection()
-    {
-        this.employees = employeeSql.readAll();
-    }
 
     /**
      * Обновляет данные в таблице, и остальных зависимых компонентах
      */
     public void updateEmployeesTable()
     {
-        this.employees = employeeSql.readAll();
-        tableEmployee.removeAllItems();
-        boxEditEmployee.removeAllItems();
-        boxDeleteEmployee.removeAllItems();
+        updateEmployeesCollection();
+        boxEdit.removeAllItems();
+        boxDelete.removeAllItems();
         for (int i = 0; i < employees.size(); i++)
         {
             Employee employee = employees.get(i);
-            tableEmployee.addItem(new Object[]{employee.getFullName(), employee.getBirthday(), employee.getEmail(), employee.getCompanyName()}, i);
             gridEmployee.addRow(new Object[]{employee.getFullName(), employee.getBirthday(), employee.getEmail(), employee.getCompanyName()});
-            boxEditEmployee.addItem(employees.get(i).getFullName());
-            boxDeleteEmployee.addItem(employees.get(i).getFullName());
+            boxEdit.addItem(employees.get(i).getFullName());
+            boxDelete.addItem(employees.get(i).getFullName());
 
         }
     }
+
+    /**
+     * Обновляет только коллекцию с сотрудниками
+     */
+    public void updateEmployeesCollection()
+    {
+        this.employees = this.genericDAO.readAll();
+    }
+
 
     public Button addClickEmployeeEditButton(Button buttonEdit, VerticalLayout layout)
     {
         buttonEdit.addClickListener(event ->
         {
-            if (getEmployeeFromName(boxEditEmployee.getValue().toString(), employees) != null && !boxEditEmployee.isReadOnly())
+            Employee employee = getItemFromName(boxEdit.getValue().toString(), employees);
+            if (employee != null && !boxEdit.isReadOnly())
             {
-                boxEditEmployee.setReadOnly(true);
+                boxEdit.setReadOnly(true);
                 buttonEdit.setEnabled(false);
-                Employee employee = getEmployeeFromName(boxEditEmployee.getValue().toString(), employees);
                 TextField employeeField = new TextField();
                 employeeField.setCaption("ФИО:");
                 employeeField.setValue(employee.getFullName());
@@ -294,15 +264,15 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
 
                 ComboBox companyBox = new ComboBox();
                 companyBox.setNullSelectionAllowed(false);
-                for (int i = 0; i < companies.size(); i++)
-                    companyBox.addItem(companies.get(i).getCompanyName());
+                for (int i = 0; i < companyNames.length; i++)
+                    companyBox.addItem(companyNames[i]);
 
 
                 Button saveButton = new Button("Сохранить");
                 Button cancelButton = new Button("Отменить");
                 cancelButton.addClickListener(event1 ->
                 {
-                    boxEditEmployee.setReadOnly(false);
+                    boxEdit.setReadOnly(false);
                     buttonEdit.setEnabled(true);
                     layout.removeComponent(employeeField);
                     layout.removeComponent(dateField);
@@ -316,13 +286,13 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
                 {
                     if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.getValue() != null)
                     {
-                        boxEditEmployee.setReadOnly(false);
+                        boxEdit.setReadOnly(false);
                         buttonEdit.setEnabled(true);
                         employee.setCompanyName(employeeField.getValue());
                         employee.setBirthday(toLocalDate(dateField.getValue()));
                         employee.setEmail(emailField.getValue());
                         employee.setCompanyName((String) companyBox.getValue());
-                        employeeSql.updateById(employee, (int) employee.getId());
+                        this.getDAO().updateById(employee, (int) employee.getId());
                         updateEmployeesTable();
                         layout.removeComponent(employeeField);
                         layout.removeComponent(dateField);
@@ -340,61 +310,16 @@ public class EmployeePopUpControllerImpl implements AbstractPopUpController<Empl
         return buttonEdit;
     }
 
-    public void updateCompanyTables()
-    {
-        this.companies = companySql.readAll();
-    }
 
 
-    //Уровень реализации
-    public Employee getEmployeeFromName(String employeeFullName, List<Employee> employees)
+    @Override
+    public Employee getItemFromName(String name, List<Employee> list)
     {
         for (Employee employee : employees)
         {
-            if (employee.getFullName().equals(employeeFullName))
+            if (employee.getFullName().equals(name))
                 return employee;
         }
         return null;
     }
-
-    public GenericDAO<Employee> getEmployeeSql()
-    {
-        return employeeSql;
-    }
-
-    public void setEmployeeSql(GenericDAO<Employee> employeeSql)
-    {
-        this.employeeSql = employeeSql;
-    }
-
-    public List<Employee> getEmployees()
-    {
-        return employees;
-    }
-
-    public void setEmployees(List<Employee> employees)
-    {
-        this.employees = employees;
-    }
-
-    public Table getTableEmployee()
-    {
-        return tableEmployee;
-    }
-
-    public void setTableEmployee(Table tableEmployee)
-    {
-        this.tableEmployee = tableEmployee;
-    }
-
-    public ComboBox getBoxEditEmployee()
-    {
-        return boxEditEmployee;
-    }
-
-    public void setBoxEditEmployee(ComboBox boxEditEmployee)
-    {
-        this.boxEditEmployee = boxEditEmployee;
-    }
-
 }

@@ -1,4 +1,4 @@
-package ru.aisa.companyregister.entity;
+package ru.aisa.companyregister.database.dao.entities;
 
 import java.time.LocalDate;
 

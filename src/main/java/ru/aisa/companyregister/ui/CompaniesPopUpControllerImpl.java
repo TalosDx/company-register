@@ -1,25 +1,31 @@
 package ru.aisa.companyregister.ui;
 
 import com.vaadin.ui.*;
-import ru.aisa.companyregister.database.dao.CompanyGenericDAOImpl;
 import ru.aisa.companyregister.database.dao.GenericDAO;
-import ru.aisa.companyregister.entity.Company;
+import ru.aisa.companyregister.database.dao.entities.Company;
+import ru.aisa.companyregister.database.dao.entities.Employee;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CompaniesPopUpControllerImpl implements AbstractPopUpController<Company>
+public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Company>
 {
-    private GenericDAO<Company> companySql = new CompanyGenericDAOImpl();
-    private List<Company> companies;
+    private ArrayList<Company> companies;
     private ComboBox boxEditCompanies = new ComboBox();
     private ComboBox boxDeleteCompanies = new ComboBox();
-    ColumnsValidatorMapper columnValidator = new CompaniesValidatorMapperImpl();
-    Button buttonAdd, buttonEdit, buttonDelete, buttonCancelAdd, buttonCancelEdit, buttonCancelDelete;
+    private ColumnsValidatorMapper columnValidator = new CompaniesValidatorMapperImpl();
+    private GenericDAO employeeDAO;
+    private Button buttonAdd, buttonEdit, buttonDelete, buttonCancelAdd, buttonCancelEdit, buttonCancelDelete;
+
+    public CompaniesPopUpControllerImpl(GenericDAO<Company> companiesDAO, GenericDAO<Employee> employeeDAO)
+    {
+        super(companiesDAO);
+        this.employeeDAO = employeeDAO;
+    }
 
     @Override
     public void init(Layout layout)
     {
-        this.updateCompaniesCollection();
         boxEditCompanies.setImmediate(true);
         boxDeleteCompanies.setImmediate(true);
         buttonAdd = new Button("Добавить");
@@ -30,59 +36,21 @@ public class CompaniesPopUpControllerImpl implements AbstractPopUpController<Com
         buttonCancelDelete = new Button("Отмена");
     }
 
-    /**
-     * Обновляет только коллекцию с компаниями
-     */
-    public void updateCompaniesCollection()
+    @Override
+    public Company getItemFromName(String name, List<Company> list)
     {
-        this.companies = companySql.readAll();
-    }
-
-    public Company getCompanyFromName(String companyName, List<Company> companies)
-    {
-        for (Company company : companies)
+        for (Company company : list)
         {
-            if (company.getCompanyName().equals(companyName))
+            if (company.getCompanyName().equals(name))
                 return company;
         }
         return null;
     }
 
-    public GenericDAO<Company> getCompanySql()
-    {
-        return companySql;
-    }
-
-    public void setCompanySql(GenericDAO<Company> companySql)
-    {
-        this.companySql = companySql;
-    }
-
-    public List<Company> getCompanies()
-    {
-        return companies;
-    }
-
-    public void setCompanies(List<Company> companies)
-    {
-        this.companies = companies;
-    }
-
-
-    public ComboBox getBoxEditCompanies()
-    {
-        return boxEditCompanies;
-    }
-
-    public void setBoxEditCompanies(ComboBox boxEditCompanies)
-    {
-        this.boxEditCompanies = boxEditCompanies;
-    }
-
     @Override
     public void updateItemData()
     {
-        this.companies = companySql.readAll();
+        this.companies = (ArrayList<Company>) this.getDAO().readAll();
         boxEditCompanies.removeAllItems();
         boxDeleteCompanies.removeAllItems();
         for (int i = 0; i < companies.size(); i++)
@@ -133,7 +101,7 @@ public class CompaniesPopUpControllerImpl implements AbstractPopUpController<Com
             if (companyField.isValid() && innField.isValid() && addressField.isValid() && phoneField.isValid())
             {
                 Company employee = new Company(companyField.getValue(), Long.valueOf(innField.getValue()), addressField.getValue(), phoneField.getValue());
-                int code = companySql.create(employee);
+                int code = this.genericDAO.create(employee);
                 updateItemData();
                 companyField.clear();
                 innField.clear();
@@ -148,17 +116,17 @@ public class CompaniesPopUpControllerImpl implements AbstractPopUpController<Com
     }
 
     @Override
-    public void displayEditItem(Layout layout, Company item)
+    public void displayEditItem(Layout layout, Company item, int id)
     {
         layout.addComponent(boxEditCompanies);
         layout.addComponent(buttonEdit);
         buttonEdit.addClickListener(event ->
         {
-            if (getCompanyFromName(boxEditCompanies.getValue().toString(), companies) != null && !boxEditCompanies.isReadOnly())
+            Company company = getItemFromName(boxEditCompanies.getValue().toString(), companies);
+            if (company != null && !boxEditCompanies.isReadOnly())
             {
                 boxEditCompanies.setReadOnly(true);
                 buttonEdit.setEnabled(false);
-                Company company = getCompanyFromName(boxEditCompanies.getValue().toString(), companies);
                 TextField companyField = new TextField();
                 companyField.setCaption("Имя компании:");
                 companyField.setValue(company.getCompanyName());
@@ -211,7 +179,7 @@ public class CompaniesPopUpControllerImpl implements AbstractPopUpController<Com
                         company.setInn(Long.parseLong(innField.getValue()));
                         company.setAddress(addressField.getValue());
                         company.setPhone(phoneField.getValue());
-                        companySql.updateById(company, company.getId());
+                        this.getDAO().updateById(company, company.getId());
                         updateItemData();
                         layout.removeComponent(companyField);
                         layout.removeComponent(innField);
@@ -228,18 +196,18 @@ public class CompaniesPopUpControllerImpl implements AbstractPopUpController<Com
     }
 
     @Override
-    public void displayDeleteItem(Layout layout, Company item)
+    public void displayDeleteItem(Layout layout, Company item, int id)
     {
         layout.addComponent(boxDeleteCompanies);
         Button buttonChoose = new Button("Выбрать");
         layout.addComponent(buttonChoose);
         buttonChoose.addClickListener(event ->
         {
-            if (getCompanyFromName(boxDeleteCompanies.getValue().toString(), companies) != null && !boxDeleteCompanies.isReadOnly())
+            Company company = getItemFromName(boxDeleteCompanies.getValue().toString(), companies);
+            if (company != null && !boxDeleteCompanies.isReadOnly())
             {
                 boxDeleteCompanies.setReadOnly(true);
                 boxDeleteCompanies.setEnabled(false);
-                Company company = getCompanyFromName(boxDeleteCompanies.getValue().toString(), companies);
                 Label companyField = new Label();
                 companyField.setCaption("Имя компании:" + company.getCompanyName());
                 companyField.setWidth("200px");
@@ -275,7 +243,7 @@ public class CompaniesPopUpControllerImpl implements AbstractPopUpController<Com
                 {
                     boxDeleteCompanies.setReadOnly(false);
                     buttonChoose.setEnabled(true);
-                    companySql.deleteByID(company.getId());
+                    this.getDAO().deleteByID(company.getId());
                     updateItemData();
                     layout.removeComponent(companyField);
                     layout.removeComponent(innField);

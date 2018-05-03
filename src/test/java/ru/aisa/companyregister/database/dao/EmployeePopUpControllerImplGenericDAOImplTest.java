@@ -1,11 +1,9 @@
 package ru.aisa.companyregister.database.dao;
 
 import org.junit.jupiter.api.Test;
-import ru.aisa.companyregister.entity.Employee;
+import ru.aisa.companyregister.database.dao.entities.Employee;
 
 import java.time.LocalDate;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class EmployeePopUpControllerImplGenericDAOImplTest
 {

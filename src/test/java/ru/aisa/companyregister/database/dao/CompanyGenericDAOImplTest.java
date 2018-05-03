@@ -1,7 +1,7 @@
 package ru.aisa.companyregister.database.dao;
 
 import org.junit.jupiter.api.Test;
-import ru.aisa.companyregister.entity.Company;
+import ru.aisa.companyregister.database.dao.entities.Company;
 
 class CompanyGenericDAOImplTest
 {
