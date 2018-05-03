@@ -8,10 +8,10 @@ import java.time.LocalDate;
 class EmployeePopUpControllerImplGenericDAOImplTest
 {
 
-    Employee employee = new Employee("Simon Ivanovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "ПАО_Builders_and_Cars and Cats");
-    Employee employee1 = new Employee("Kamina Evckovich", LocalDate.of(1984, 02, 21), "ivan@mail.ru", "OAO MetaPhone");
+    private final Employee employee = new Employee("Simon Ivanovich", LocalDate.of(1984, 2, 21), "ivan@mail.ru", "ПАО_Builders_and_Cars and Cats");
+    private final Employee employee1 = new Employee("Kamina Evckovich", LocalDate.of(1984, 2, 21), "ivan@mail.ru", "OAO MetaPhone");
 
-    GenericDAO genericDAO = new EmployeeGenericDAOImpl();
+    private final GenericDAO genericDAO = new EmployeeGenericDAOImpl();
 
     @Test
     void create()
@@ -64,13 +64,4 @@ class EmployeePopUpControllerImplGenericDAOImplTest
         System.out.print(genericDAO.deleteWithoutID(employee));
     }
 
-    @Test
-    void getTableColumns()
-    {
-    }
-
-    @Test
-    void getTableName()
-    {
-    }
 }

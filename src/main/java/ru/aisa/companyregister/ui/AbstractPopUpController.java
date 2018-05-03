@@ -10,19 +10,19 @@ public abstract class AbstractPopUpController<T>
 {
 
     GenericDAO<T> genericDAO;
-    BeanItemContainer<T> itemContainer;
+    final BeanItemContainer<T> itemContainer;
 
     /**
      * Обязательный конструктор для указания genericDao с которым работаем
      * @param genericDAO - используется для управлением объектом такому как добавление объекта или его редактирование или удаления
      */
-    public AbstractPopUpController(GenericDAO<T> genericDAO, BeanItemContainer<T> itemContainer)
+    AbstractPopUpController(GenericDAO<T> genericDAO, BeanItemContainer<T> itemContainer)
     {
         this.genericDAO = genericDAO;
         this.itemContainer = itemContainer;
     }
 
-    public GenericDAO<T> getDAO()
+    GenericDAO<T> getDAO()
     {
         return genericDAO;
     }
@@ -57,7 +57,6 @@ public abstract class AbstractPopUpController<T>
      * Окно редактирования объекта
      * @param window - используется для отображения объектов
      * @param item - объект с которым оперируем
-     * @param id - ид редактируемого объекта
      */
     public abstract void displayEditItem(Window window, T item);
 
@@ -65,18 +64,17 @@ public abstract class AbstractPopUpController<T>
      * Окно удаления объекта
      * @param window - используется для отображения объектов
      * @param item - объект с которым оперируем
-     * @param id - ид редактируемого объекта
      */
     public abstract void displayDeleteItem(Window window, T item);
 
-    protected void clearAction(Layout layout, Component[] components)
+    void clearAction(Layout layout, Component[] components)
     {
         for (Component component : components)
             layout.removeComponent(component);
     }
 
 
-    protected void clearFields(Field[] fields)
+    void clearFields(Field[] fields)
     {
         for(Field field : fields)
             field.clear();

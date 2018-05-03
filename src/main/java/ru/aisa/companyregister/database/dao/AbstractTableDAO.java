@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
 
-public interface AbstractTableDAO
+interface AbstractTableDAO
 {
     /**
      * Формирует sql запрос в формате NPJT
@@ -37,7 +37,6 @@ public interface AbstractTableDAO
      * Формирует sql запрос через в формате NPJT
      * @param tableName - имя таблицы
      * @param nameColumns - название колонок базы данных
-     * @param id  - ид записи в таблицы
      * @return возвращает sql запрос типа SELECT
      */
     String getSelectRequestById(String tableName, String[] nameColumns);

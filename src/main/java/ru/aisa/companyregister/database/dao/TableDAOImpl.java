@@ -6,7 +6,6 @@ import ru.aisa.companyregister.database.DBConnector;
 
 import java.util.List;
 
-import static ru.aisa.companyregister.database.DBConnector.sqlExecute;
 import static ru.aisa.companyregister.database.DBConnector.sqlExecuteForInt;
 import static ru.aisa.companyregister.database.DBConnector.sqlUpdate;
 
@@ -15,7 +14,7 @@ public class TableDAOImpl implements AbstractTableDAO
     @Override
     public String getInsertRequest(String table, String[] nameColumns, String[] nameVariables)
     {
-        int size=0;
+        int size;
         if (nameColumns.length == nameVariables.length) size = nameVariables.length;
         else throw new IllegalArgumentException("Length of nameColumns and objects not equal");
         String SQL_INSERT = "INSERT INTO " + table + " (";
@@ -43,7 +42,7 @@ public class TableDAOImpl implements AbstractTableDAO
     {
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 
-        int size=0;
+        int size;
         if (nameColumns.length == objects.length) size = objects.length;
         else throw new IllegalArgumentException("Length of nameColumns and objects not equal");
 

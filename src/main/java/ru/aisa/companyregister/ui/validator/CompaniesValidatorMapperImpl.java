@@ -8,14 +8,14 @@ import java.util.HashMap;
 
 public class CompaniesValidatorMapperImpl implements ColumnsValidatorMapper
 {
-    static HashMap<String, Validator> validatorMap = new HashMap<>();
+    private static final HashMap<String, Validator> validatorMap = new HashMap<>();
 
     static
     {
         init();
     }
 
-    public static void init()
+    private static void init()
     {
         validatorMap.put("company_name", new AbstractStringValidator("Любые символы кроме цифр")
         {
@@ -39,7 +39,7 @@ public class CompaniesValidatorMapperImpl implements ColumnsValidatorMapper
             @Override
             protected boolean isValidValue(String value)
             {
-                return value.matches("\\+[7-8][0-9][0-9]{2}\\-[0-9]{3}\\-[0-9]{2}\\-[0-9]{2}");
+                return value.matches("\\+[7-8][0-9][0-9]{2}-[0-9]{3}-[0-9]{2}-[0-9]{2}");
             }
         });
 

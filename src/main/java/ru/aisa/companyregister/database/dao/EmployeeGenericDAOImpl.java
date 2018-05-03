@@ -9,12 +9,12 @@ import java.util.List;
 
 public class EmployeeGenericDAOImpl implements GenericDAO<Employee>
 {
-    AbstractTableDAO sqlExecutor = new TableDAOImpl();
-    final String[] columns = new String[]{"id", "full_name", "birthday", "email", "company_name"};
-    final String[] columnsWithoutId = new String[]{"full_name", "birthday", "email", "company_name"};
-    final Class<?>[] types = new Class[]{Integer.class, String.class, LocalDate.class, String.class, String.class};
-    final Class<?>[] typesWithoutId = new Class[]{String.class, LocalDate.class, String.class, String.class};
-    final String tableName = "employee";
+    private final AbstractTableDAO sqlExecutor = new TableDAOImpl();
+    private final String[] columns = new String[]{"id", "full_name", "birthday", "email", "company_name"};
+    private final String[] columnsWithoutId = new String[]{"full_name", "birthday", "email", "company_name"};
+    private final Class<?>[] types = new Class[]{Integer.class, String.class, LocalDate.class, String.class, String.class};
+    private final Class<?>[] typesWithoutId = new Class[]{String.class, LocalDate.class, String.class, String.class};
+    private final String tableName = "employee";
 
     @Override
     public int create(Employee object)

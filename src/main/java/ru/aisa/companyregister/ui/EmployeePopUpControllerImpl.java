@@ -1,7 +1,6 @@
 package ru.aisa.companyregister.ui;
 
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.server.Sizeable;
 import com.vaadin.ui.*;
 import ru.aisa.companyregister.database.dao.GenericDAO;
 import ru.aisa.companyregister.database.dao.entities.Company;
@@ -19,8 +18,8 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
 {
     private List<Employee> employees;
     private List<Company> companies;
-    private GenericDAO<Company> companyDAO;
-    private ColumnsValidatorMapper validatorMapper = new EmployeeValidatorMapperImpl();
+    private final GenericDAO<Company> companyDAO;
+    private final ColumnsValidatorMapper validatorMapper = new EmployeeValidatorMapperImpl();
 
     /**
      * Обязательный конструктор для указания genericDao с которым работаем
@@ -151,7 +150,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
                 employee.setBirthday(toLocalDate(dateField.getValue()));
                 employee.setEmail(emailField.getValue());
                 employee.setCompanyName((String) companyBox.getValue());
-                this.getDAO().updateById(employee, (int) employee.getId());
+                this.getDAO().updateById(employee, employee.getId());
                 updateEmployeesTable();
                 clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
                 window.close();
@@ -206,7 +205,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
     /**
      * Обновляет данные в таблице, и остальных зависимых компонентах
      */
-    public void updateEmployeesTable()
+    private void updateEmployeesTable()
     {
         super.itemContainer.removeAllItems();
         updateEmployeesCollection();
@@ -216,7 +215,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
     /**
      * Обновляет только коллекцию с сотрудниками
      */
-    public void updateEmployeesCollection()
+    private void updateEmployeesCollection()
     {
         this.employees = this.genericDAO.readAll();
     }

@@ -15,7 +15,7 @@ import java.util.List;
 public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Company>
 {
     private ArrayList<Company> companies;
-    private ColumnsValidatorMapper columnValidator = new CompaniesValidatorMapperImpl();
+    private final ColumnsValidatorMapper columnValidator = new CompaniesValidatorMapperImpl();
     private GenericDAO employeeDAO;
 
     public CompaniesPopUpControllerImpl(GenericDAO<Company> companiesDAO, BeanItemContainer<Company> itemContainer, GenericDAO<Employee> employeeDAO)

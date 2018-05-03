@@ -1,8 +1,6 @@
 package ru.aisa.companyregister;
 
-import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.ItemSorter;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import ru.aisa.companyregister.database.dao.CompanyGenericDAOImpl;
@@ -22,16 +20,19 @@ import java.util.Objects;
 
 public class CompanyRegister extends UI
 {
-    private AbstractPopUpController controller;
     private final VerticalLayout ownContent = new VerticalLayout();
-    private TabSheet contentTabs = new TabSheet();
-    private GenericDAO companiesDAO = new CompanyGenericDAOImpl();
-    private GenericDAO employeeDAO = new EmployeeGenericDAOImpl();
-    BeanItemContainer<Employee> employeeBeanItemContainer;
-    BeanItemContainer<Company> companyBeanItemContainer;
-    Grid employeeGrid, companyGrid;
-    TabSheet.Tab employeeTab, companyTab;
-    Button addItem, editItem, deleteItem;
+    private final TabSheet contentTabs = new TabSheet();
+    private final GenericDAO companiesDAO = new CompanyGenericDAOImpl();
+    private final GenericDAO employeeDAO = new EmployeeGenericDAOImpl();
+    private BeanItemContainer<Employee> employeeBeanItemContainer;
+    private BeanItemContainer<Company> companyBeanItemContainer;
+    private Grid employeeGrid;
+    private Grid companyGrid;
+    private TabSheet.Tab employeeTab;
+    private TabSheet.Tab companyTab;
+    private Button addItem;
+    private Button editItem;
+    private Button deleteItem;
 
     @Override
     protected void init(VaadinRequest request)
@@ -91,7 +92,7 @@ public class CompanyRegister extends UI
     private Grid createEmployeesGrid()
     {
         ArrayList<Employee> employees = (ArrayList<Employee>) employeeDAO.readAll();
-        employeeBeanItemContainer = new BeanItemContainer<Employee>(Employee.class, employees);
+        employeeBeanItemContainer = new BeanItemContainer<>(Employee.class, employees);
         Grid grid = new Grid(employeeBeanItemContainer);
         sortRename(grid, Arrays.asList("id", "fullName", "birthday", "email", "companyName"));
         checkGridSelectable(grid, employeeTab);
@@ -135,7 +136,7 @@ public class CompanyRegister extends UI
     private Grid createCompaniesGrid()
     {
         ArrayList<Company> companies = (ArrayList<Company>) companiesDAO.readAll();
-        companyBeanItemContainer = new BeanItemContainer<Company>(Company.class, companies);
+        companyBeanItemContainer = new BeanItemContainer<>(Company.class, companies);
         Grid grid = new Grid(companyBeanItemContainer);
         checkGridSelectable(grid, companyTab);
         sortRename(grid, Arrays.asList("id", "companyName", "inn", "address", "phone"));
@@ -199,8 +200,10 @@ public class CompanyRegister extends UI
             controller.displayAddItem(window);
         }
         if (window != null)
+        {
             this.addWindow(window);
-        window.setModal(true);
+            window.setModal(true);
+        }
         return window;
     }
 
@@ -230,7 +233,7 @@ public class CompanyRegister extends UI
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
                 controller.init(window);
-                controller.displayEditItem(window, (Company) companyGrid.getSelectedRow());
+                controller.displayEditItem(window, companyGrid.getSelectedRow());
                 companyGrid.deselectAll();
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
@@ -241,14 +244,15 @@ public class CompanyRegister extends UI
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
                 controller.init(window);
-                controller.displayEditItem(window, (Employee) employeeGrid.getSelectedRow());
+                controller.displayEditItem(window, employeeGrid.getSelectedRow());
                 employeeGrid.deselectAll();
             }
         }
         if (window != null)
+        {
             this.addWindow(window);
-        window.setModal(true);
-        // controller.displayEditItem(tabItemEditVertical, grid.getSelectedRow());
+            window.setModal(true);
+        }
 
     }
 
@@ -268,7 +272,7 @@ public class CompanyRegister extends UI
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
                 controller.init(window);
-                controller.displayDeleteItem(window, (Company) companyGrid.getSelectedRow());
+                controller.displayDeleteItem(window, companyGrid.getSelectedRow());
                 companyGrid.deselectAll();
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
@@ -279,15 +283,15 @@ public class CompanyRegister extends UI
                 VerticalLayout verticalLayout = new VerticalLayout();
                 window.setContent(verticalLayout);
                 controller.init(window);
-                controller.displayDeleteItem(window, (Employee) employeeGrid.getSelectedRow());
+                controller.displayDeleteItem(window, employeeGrid.getSelectedRow());
                 employeeGrid.deselectAll();
             }
         }
         if (window != null)
+        {
             this.addWindow(window);
-        window.setModal(true);
-        //NPE maybe
-        //controller.displayDeleteItem(tabItemDeleteVertical, grid.getSelectedRow());
+            window.setModal(true);
+        }
 
     }
 }

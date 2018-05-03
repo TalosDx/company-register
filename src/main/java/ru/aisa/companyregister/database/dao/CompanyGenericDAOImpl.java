@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CompanyGenericDAOImpl implements GenericDAO<Company>
 {
-    AbstractTableDAO sqlExecutor = new TableDAOImpl();
+    private final AbstractTableDAO sqlExecutor = new TableDAOImpl();
     final String[] columns = new String[]{"id", "company_name", "inn", "address", "phone"};
     final String[] columnsWithID = new String[]{"company_name", "inn", "address", "phone"};
     final Class<?>[] types = new Class[]{Integer.class, String.class, Long.class, String.class, String.class};

@@ -6,17 +6,17 @@ import ru.aisa.companyregister.database.dao.mapper.CompanyMapperImpl;
 class TableDAOImplTest
 {
 
-    AbstractTableDAO sql = new TableDAOImpl();
+    private final AbstractTableDAO sql = new TableDAOImpl();
 
     @Test
-    public void getInsertRequest()
+    void getInsertRequest()
     {
         System.out.println(sql.getInsertRequest("companies", new String[]{"company_name", "inn", "address", "phone"},
                 new String[]{"company_name", "inn", "address", "phone"}));
     }
 
     @Test
-    public void insertTable()
+    void insertTable()
     {
         System.out.println(sql.insertTable("companies", new String[]{"company_name", "inn", "address", "phone"},
                 new String[]{"company_name", "inn", "address", "phone"},
@@ -25,20 +25,20 @@ class TableDAOImplTest
     }
 
     @Test
-    public void getSelectRequest()
+    void getSelectRequest()
     {
         System.out.println(sql.getSelectRequest("companies", new String[]{"id", "company_name", "inn", "address", "phone"}));
     }
 
     @Test
-    public void getSelectRequestById()
+    void getSelectRequestById()
     {
         System.out.println(sql.getSelectRequestById("companies", new String[]{"id", "company_name", "inn", "address", "phone"}));
         System.out.println(sql.getSelectRequestById("company", new String[]{"id", "company_name", "inn", "address", "phone"}));
     }
 
     @Test
-    public void selectAllColumns()
+    void selectAllColumns()
     {
         System.out.println(sql.selectAllColumns("companies", new String[]{"id", "company_name", "inn", "address", "phone"}, new CompanyMapperImpl()));
         System.out.println(sql.selectAllColumns("companies", new String[]{"*"}, new CompanyMapperImpl()));
@@ -46,13 +46,13 @@ class TableDAOImplTest
     }
 
     @Test
-    public void selectColumnsById()
+    void selectColumnsById()
     {
         System.out.println(sql.selectColumnsById("companies", new String[]{"*"}, 1, new CompanyMapperImpl()));
     }
 
     @Test
-    public void getUpdateRequest()
+    void getUpdateRequest()
     {
         System.out.println(sql.getUpdateRequest("companies", new String[]{"company_name", "inn", "address", "phone"},
                 new String[]{"company_name", "inn", "address", "phone"},
@@ -60,7 +60,7 @@ class TableDAOImplTest
     }
 
     @Test
-    public void updateTable()
+    void updateTable()
     {
         System.out.println(sql.updateTable("companies", new String[]{"company_name", "inn", "address", "phone"},
                 new String[]{"company_name", "inn", "address", "phone"},

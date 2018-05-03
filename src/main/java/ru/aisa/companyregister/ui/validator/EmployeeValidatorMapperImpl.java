@@ -11,14 +11,14 @@ import java.util.HashMap;
 
 public class EmployeeValidatorMapperImpl implements ColumnsValidatorMapper
 {
-    static HashMap<String, Validator> validatorMap = new HashMap<>();
+    private static final HashMap<String, Validator> validatorMap = new HashMap<>();
 
     static
     {
         init();
     }
 
-    public static void init()
+    private static void init()
     {
         validatorMap.put("full_name", new AbstractStringValidator("Любые символы кроме цифр")
         {
