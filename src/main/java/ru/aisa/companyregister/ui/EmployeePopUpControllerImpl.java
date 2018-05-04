@@ -1,7 +1,7 @@
 package ru.aisa.companyregister.ui;
 
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
+import ru.aisa.companyregister.CompanyRegister;
 import ru.aisa.companyregister.database.dao.GenericDAO;
 import ru.aisa.companyregister.database.dao.entities.Company;
 import ru.aisa.companyregister.database.dao.entities.Employee;
@@ -16,34 +16,32 @@ import static ru.aisa.companyregister.utils.LazyUtils.toLocalDate;
 
 public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employee>
 {
-    private List<Employee> employees;
-    private List<Company> companies;
     private final GenericDAO<Company> companyDAO;
     private final ColumnsValidatorMapper validatorMapper = new EmployeeValidatorMapperImpl();
-
+    CompanyRegister ui;
     /**
      * Обязательный конструктор для указания genericDao с которым работаем
      *
      * @param employeeDAO - используется для управлением объектом такому как добавление объекта или его редактирование или удаления
      */
-    public EmployeePopUpControllerImpl(GenericDAO<Employee> employeeDAO, BeanItemContainer<Employee> itemContainer, GenericDAO<Company> companyDAO)
+    public EmployeePopUpControllerImpl(GenericDAO<Employee> employeeDAO, GenericDAO<Company> companyDAO, CompanyRegister ui)
     {
-        super(employeeDAO, itemContainer);
+        super(employeeDAO, ui.employeeBeanItemContainer);
         this.companyDAO = companyDAO;
+        this.ui = ui;
     }
 
 
     @Override
     public void updateItemData()
     {
-        updateEmployeesTable();
-        companies = companyDAO.readAll();
+         ui.updateGrids();
     }
 
     @Override
     public void init(Window window)
     {
-        this.updateItemData();
+        updateItemData();
     }
 
     /**
@@ -80,7 +78,12 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         companyBox.setWidth("200px");
         companyBox.setNullSelectionAllowed(false);
 
-        companies.stream().map(Company::getCompanyName).forEach(companyBox::addItem);
+        for (Company company : ui.companies)
+        {
+            int companyId = company.getId();
+            companyBox.addItem(companyId);
+            companyBox.setItemCaption(companyId, company.getCompanyName());
+        }
 
 
         Button saveButton = new Button(LazyUtils.getLangProperties("button.add"));
@@ -95,9 +98,9 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         {
             if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.isValid())
             {
-                Employee employee = new Employee(employeeField.getValue(), toLocalDate(dateField.getValue()), emailField.getValue(), (String) companyBox.getValue());
+                Employee employee = new Employee(employeeField.getValue(), toLocalDate(dateField.getValue()), emailField.getValue(), (Integer) companyBox.getValue());
                 int code = this.getDAO().create(employee);
-                updateEmployeesTable();
+                updateItemData();
                 clearFields(new Field[]{employeeField, dateField, emailField, companyBox});
                 if (code == 1)
                 {
@@ -150,8 +153,13 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         companyBox.setWidth("200px");
         companyBox.setNullSelectionAllowed(false);
         companyBox.addValidator(validatorMapper.getValidatorFromColumn("company_name"));
-        companies.stream().map(Company::getCompanyName).forEach(companyBox::addItem);
-        companyBox.select(employee.getCompanyName());
+        ui.companies.forEach(company ->
+        {
+            Integer id = company.getId();
+            companyBox.addItem(id);
+            companyBox.setItemCaption(id, company.getCompanyName());
+        });
+        companyBox.select(employee.getCompanyId());
 
 
         Button saveButton = new Button(LazyUtils.getLangProperties("button.save"));
@@ -165,12 +173,12 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         {
             if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.isValid())
             {
-                employee.setCompanyName(employeeField.getValue());
+                employee.setFullName(employeeField.getValue());
                 employee.setBirthday(toLocalDate(dateField.getValue()));
                 employee.setEmail(emailField.getValue());
-                employee.setCompanyName((String) companyBox.getValue());
+                employee.setCompanyId((Integer) companyBox.getValue());
                 this.getDAO().updateById(employee, employee.getId());
-                updateEmployeesTable();
+                updateItemData();
                 clearAction(ownContent, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
                 window.close();
             }
@@ -213,7 +221,9 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
 
         TextField companyBox = new TextField();
         companyBox.setCaption(LazyUtils.getLangProperties("companyName") + ": ");
-        companyBox.setValue(employee.getCompanyName());
+        String company = ui.companyNames.get(employee.getCompanyId());
+        if(company != null)
+        companyBox.setValue(company);
         companyBox.setReadOnly(true);
         companyBox.setWidth("200px");
 
@@ -228,7 +238,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         deleteButton.addClickListener(event1 ->
         {
             this.getDAO().deleteByID(employee.getId());
-            updateEmployeesTable();
+            updateItemData();
             clearAction(ownContent, new Component[]{employeeField, dateField, emailField, companyBox, deleteButton, cancelButton});
             window.close();
 
@@ -240,30 +250,19 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
 
     }
 
-
-    /**
-     * Обновляет данные в таблице, и остальных зависимых компонентах
-     */
-    private void updateEmployeesTable()
+    protected Company getCompanyFromId(int id)
     {
-        super.itemContainer.removeAllItems();
-        updateEmployeesCollection();
-        super.itemContainer.addAll(this.employees);
-    }
-
-    /**
-     * Обновляет только коллекцию с сотрудниками
-     */
-    private void updateEmployeesCollection()
-    {
-        this.employees = this.genericDAO.readAll();
+        for(Company company : ui.companies)
+            if(company.getId() == id)
+                return company;
+        return null;
     }
 
 
     @Override
     public Employee getItemFromName(String name, List<Employee> list)
     {
-        for (Employee employee : employees)
+        for (Employee employee : ui.employees)
         {
             if (employee.getFullName().equals(name))
                 return employee;

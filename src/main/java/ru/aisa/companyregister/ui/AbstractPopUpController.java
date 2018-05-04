@@ -6,6 +6,8 @@ import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.*;
 import ru.aisa.companyregister.database.dao.GenericDAO;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public abstract class AbstractPopUpController<T>
@@ -13,6 +15,7 @@ public abstract class AbstractPopUpController<T>
 
     GenericDAO<T> genericDAO;
     final BeanItemContainer<T> itemContainer;
+    protected final HashMap<BeanItemContainer, GenericDAO> beanContainers = new HashMap();
 
     /**
      * Обязательный конструктор для указания genericDao с которым работаем
@@ -27,6 +30,11 @@ public abstract class AbstractPopUpController<T>
     GenericDAO<T> getDAO()
     {
         return genericDAO;
+    }
+
+    public void registerBeanItemContainer(BeanItemContainer beanItemContainer, GenericDAO genericDAO)
+    {
+        beanContainers.put(beanItemContainer, genericDAO);
     }
 
     public void setDAO(GenericDAO<T> genericDAO)

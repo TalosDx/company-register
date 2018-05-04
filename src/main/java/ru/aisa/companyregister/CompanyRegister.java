@@ -1,6 +1,9 @@
 package ru.aisa.companyregister;
 
+import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.GeneratedPropertyContainer;
+import com.vaadin.data.util.PropertyValueGenerator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import ru.aisa.companyregister.database.dao.CompanyGenericDAOImpl;
@@ -13,10 +16,8 @@ import ru.aisa.companyregister.ui.CompaniesPopUpControllerImpl;
 import ru.aisa.companyregister.ui.EmployeePopUpControllerImpl;
 import ru.aisa.companyregister.utils.LazyUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CompanyRegister extends UI
 {
@@ -24,8 +25,7 @@ public class CompanyRegister extends UI
     private final TabSheet contentTabs = new TabSheet();
     private final GenericDAO companiesDAO = new CompanyGenericDAOImpl();
     private final GenericDAO employeeDAO = new EmployeeGenericDAOImpl();
-    private BeanItemContainer<Employee> employeeBeanItemContainer;
-    private BeanItemContainer<Company> companyBeanItemContainer;
+
     private Grid employeeGrid;
     private Grid companyGrid;
     private TabSheet.Tab employeeTab;
@@ -33,6 +33,11 @@ public class CompanyRegister extends UI
     private Button addItem;
     private Button editItem;
     private Button deleteItem;
+    public ArrayList<Employee> employees;
+    public ArrayList<Company> companies;
+    public BeanItemContainer<Employee> employeeBeanItemContainer;
+    public BeanItemContainer<Company> companyBeanItemContainer;
+    public Map<Integer, String> companyNames;
 
     @Override
     protected void init(VaadinRequest request)
@@ -66,6 +71,10 @@ public class CompanyRegister extends UI
             deleteItem.setEnabled(false);
         });
 
+        employees = (ArrayList<Employee>) employeeDAO.readAll();
+        companies = (ArrayList<Company>) companiesDAO.readAll();
+        companyNames = companies.stream().collect(Collectors.toMap(Company::getId, Company::getCompanyName));
+
         companyGrid = createCompaniesGrid();
         companiesLayout.addComponent(companyGrid);
         employeeGrid = createEmployeesGrid();
@@ -84,6 +93,9 @@ public class CompanyRegister extends UI
         employeeBeanItemContainer.addAll(employeeDAO.readAll());
         companyBeanItemContainer.removeAllItems();
         companyBeanItemContainer.addAll(companiesDAO.readAll());
+        employees = (ArrayList<Employee>) employeeDAO.readAll();
+        companies = (ArrayList<Company>) companiesDAO.readAll();
+        companyNames = companies.stream().collect(Collectors.toMap(Company::getId, Company::getCompanyName));
     }
 
     /**
@@ -91,12 +103,28 @@ public class CompanyRegister extends UI
      */
     private Grid createEmployeesGrid()
     {
-        ArrayList<Employee> employees = (ArrayList<Employee>) employeeDAO.readAll();
         employeeBeanItemContainer = new BeanItemContainer<>(Employee.class, employees);
-        Grid grid = new Grid(employeeBeanItemContainer);
-        sortRename(grid, Arrays.asList("id", "fullName", "birthday", "email", "companyName"));
+        GeneratedPropertyContainer gContainer = new GeneratedPropertyContainer(employeeBeanItemContainer);
+
+        gContainer.addGeneratedProperty("companyName", new PropertyValueGenerator<String>()
+        {
+            @Override
+            public String getValue(Item item, Object itemId, Object propertyId)
+            {
+                return companyNames.get(item.getItemProperty("companyId").getValue());
+            }
+
+            @Override
+            public Class<String> getType()
+            {
+                return String.class;
+            }
+        });
+        Grid grid = new Grid(gContainer);
+        sortRename(grid, Arrays.asList("id", "fullName", "birthday", "email", "companyId", "companyName"));
         checkGridSelectable(grid, employeeTab);
         grid.getColumn("id").setHidden(true);
+        grid.getColumn("companyId").setHidden(true);
         grid.setSelectionMode(Grid.SelectionMode.SINGLE);
         grid.setSizeFull();
         grid.setImmediate(true);
@@ -135,7 +163,6 @@ public class CompanyRegister extends UI
      */
     private Grid createCompaniesGrid()
     {
-        ArrayList<Company> companies = (ArrayList<Company>) companiesDAO.readAll();
         companyBeanItemContainer = new BeanItemContainer<>(Company.class, companies);
         Grid grid = new Grid(companyBeanItemContainer);
         checkGridSelectable(grid, companyTab);
@@ -156,13 +183,15 @@ public class CompanyRegister extends UI
         if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab))
         {
             str = "Добавить компанию";
-            controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
+            controller = new CompaniesPopUpControllerImpl(companiesDAO, employeeDAO, this);
+            controller.registerBeanItemContainer(employeeBeanItemContainer, employeeDAO);
             window = getActionAddItem(controller, str);
         }
         if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab))
         {
             str = "Добавить сотрудника";
-            controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
+            controller = new EmployeePopUpControllerImpl(employeeDAO, companiesDAO, this);
+            controller.registerBeanItemContainer(companyBeanItemContainer, companiesDAO);
             window = getActionAddItem(controller, str);
         }
         if (window != null)
@@ -184,13 +213,15 @@ public class CompanyRegister extends UI
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab) && companyGrid.getSelectedRow() != null)
             {
                 str = "Редактировать компанию";
-                controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
+                controller = new CompaniesPopUpControllerImpl(companiesDAO, employeeDAO, this);
+                controller.registerBeanItemContainer(employeeBeanItemContainer, employeeDAO);
                 window = getActionEditItem(controller, str, companyGrid);
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
             {
                 str = "Редактировать сотрудника";
-                controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
+                controller = new EmployeePopUpControllerImpl(employeeDAO, companiesDAO, this);
+                controller.registerBeanItemContainer(companyBeanItemContainer, companiesDAO);
                 window = getActionEditItem(controller, str, employeeGrid);
             }
         }
@@ -213,13 +244,15 @@ public class CompanyRegister extends UI
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), companyTab) && companyGrid.getSelectedRow() != null)
             {
                 str = "Удалить компанию";
-                controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
+                controller = new CompaniesPopUpControllerImpl(companiesDAO, employeeDAO, this);
+                controller.registerBeanItemContainer(employeeBeanItemContainer, employeeDAO);
                 window = getActionDeleteItem(controller, str, companyGrid);
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
             {
                 str = "Удалить сотрудника";
-                controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
+                controller = new EmployeePopUpControllerImpl(employeeDAO, companiesDAO, this);
+                controller.registerBeanItemContainer(companyBeanItemContainer, companiesDAO);
                 window = getActionDeleteItem(controller, str, employeeGrid);
             }
         }

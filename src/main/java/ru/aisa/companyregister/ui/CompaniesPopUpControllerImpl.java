@@ -1,7 +1,7 @@
 package ru.aisa.companyregister.ui;
 
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
+import ru.aisa.companyregister.CompanyRegister;
 import ru.aisa.companyregister.database.dao.GenericDAO;
 import ru.aisa.companyregister.database.dao.entities.Company;
 import ru.aisa.companyregister.database.dao.entities.Employee;
@@ -9,25 +9,24 @@ import ru.aisa.companyregister.ui.validator.ColumnsValidatorMapper;
 import ru.aisa.companyregister.ui.validator.CompaniesValidatorMapperImpl;
 import ru.aisa.companyregister.utils.LazyUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Company>
 {
-    private ArrayList<Company> companies;
     private final ColumnsValidatorMapper columnValidator = new CompaniesValidatorMapperImpl();
     private GenericDAO employeeDAO;
+    CompanyRegister ui;
 
-    public CompaniesPopUpControllerImpl(GenericDAO<Company> companiesDAO, BeanItemContainer<Company> itemContainer, GenericDAO<Employee> employeeDAO)
+    public CompaniesPopUpControllerImpl(GenericDAO<Company> companiesDAO, GenericDAO<Employee> employeeDAO, CompanyRegister ui)
     {
-        super(companiesDAO, itemContainer);
+        super(companiesDAO, ui.companyBeanItemContainer);
         this.employeeDAO = employeeDAO;
+        this.ui = ui;
     }
 
     @Override
     public void init(Window window)
-    {
-    }
+    {}
 
     @Override
     public Company getItemFromName(String name, List<Company> list)
@@ -43,9 +42,7 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
     @Override
     public void updateItemData()
     {
-        super.itemContainer.removeAllItems();
-        this.companies = (ArrayList<Company>) this.getDAO().readAll();
-        super.itemContainer.addAll(this.companies);
+        ui.updateGrids();
     }
 
     @Override
@@ -207,7 +204,7 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
         addressField.setWidth("200px");
 
         TextField phoneField = new TextField();
-        phoneField.setCaption(LazyUtils.getLangProperties("phone") + ": " + company.getPhone());
+        phoneField.setCaption(LazyUtils.getLangProperties("phone") + ": ");
         phoneField.setValue(company.getPhone());
         phoneField.setReadOnly(true);
         phoneField.setWidth("200px");

@@ -4,6 +4,7 @@ import com.vaadin.data.Validator;
 import com.vaadin.data.validator.AbstractStringValidator;
 import com.vaadin.data.validator.DateRangeValidator;
 import com.vaadin.data.validator.EmailValidator;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.shared.ui.datefield.Resolution;
 
 import java.util.Calendar;
@@ -36,14 +37,7 @@ public class EmployeeValidatorMapperImpl implements ColumnsValidatorMapper
         secondDate.add(Calendar.YEAR, -18);
         validatorMap.put("birthday", new DateRangeValidator("Возраст сотрудника не может быть ниже 18 и выше 200+ лет", firstDate.getTime(), secondDate.getTime(), Resolution.DAY));
         validatorMap.put("email", new EmailValidator("Неправильный email, используйте формат: username@mail.com"));
-        validatorMap.put("company_name", new AbstractStringValidator("Имя компании не может быть пустым или содержать цифры")
-        {
-            @Override
-            protected boolean isValidValue(String value)
-            {
-                return value != null && value.length() > 2 && value.length() < 120+1 && value.matches("[^0-9]+");
-            }
-        });
+        validatorMap.put("company_name", new IntegerRangeValidator("Компания не выбрана, выберите компавнию", 0, Integer.MAX_VALUE));
     }
 
     @Override
