@@ -5,24 +5,25 @@ import java.time.LocalDate;
 public class Employee
 {
     private int id;
-    private String fullName, email, companyName;
-    private  LocalDate birthday;
+    private String fullName, email;
+    private LocalDate birthday;
+    private int companyId;
 
-    public Employee(int id, String fullName, LocalDate birthday, String email , String companyName)
+    public Employee(int id, String fullName, LocalDate birthday, String email , int companyId)
     {
         this.id = id;
         this.fullName = fullName;
         this.birthday = birthday;
         this.email = email;
-        this.companyName = companyName;
+        this.companyId = companyId;
     }
 
-    public Employee(String fullName, LocalDate birthday, String email , String companyName)
+    public Employee(String fullName, LocalDate birthday, String email , int companyId)
     {
         this.fullName = fullName;
         this.birthday = birthday;
         this.email = email;
-        this.companyName = companyName;
+        this.companyId = companyId;
     }
 
     public void setId(int id)
@@ -56,14 +57,14 @@ public class Employee
         this.email = email;
     }
 
-    public String getCompanyName()
+    public int getCompanyId()
     {
-        return companyName;
+        return companyId;
     }
 
-    public void setCompanyName(String companyName)
+    public void setCompanyId(int companyId)
     {
-        this.companyName = companyName;
+        this.companyId = companyId;
     }
 
     public LocalDate getBirthday()
@@ -83,7 +84,7 @@ public class Employee
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
-                ", companyName='" + companyName + '\'' +
+                ", companyId='" + companyId + '\'' +
                 ", birthday=" + birthday +
                 '}';
     }

@@ -10,16 +10,16 @@ import java.util.List;
 public class EmployeeGenericDAOImpl implements GenericDAO<Employee>
 {
     private final AbstractTableDAO sqlExecutor = new TableDAOImpl();
-    private final String[] columns = new String[]{"id", "full_name", "birthday", "email", "company_name"};
-    private final String[] columnsWithoutId = new String[]{"full_name", "birthday", "email", "company_name"};
-    private final Class<?>[] types = new Class[]{Integer.class, String.class, LocalDate.class, String.class, String.class};
-    private final Class<?>[] typesWithoutId = new Class[]{String.class, LocalDate.class, String.class, String.class};
+    private final String[] columns = new String[]{"id", "full_name", "birthday", "email", "company_id"};
+    private final String[] columnsWithoutId = new String[]{"full_name", "birthday", "email", "company_id"};
+    private final Class<?>[] types = new Class[]{Integer.class, String.class, LocalDate.class, String.class, Integer.class};
+    private final Class<?>[] typesWithoutId = new Class[]{String.class, LocalDate.class, String.class, Integer.class};
     private final String tableName = "employee";
 
     @Override
     public int create(Employee object)
     {
-        return sqlExecutor.insertTable(tableName, columnsWithoutId, columnsWithoutId, new Object[]{object.getFullName(), object.getBirthday(), object.getEmail(), object.getCompanyName()});
+        return sqlExecutor.insertTable(tableName, columnsWithoutId, columnsWithoutId, new Object[]{object.getFullName(), object.getBirthday(), object.getEmail(), object.getCompanyId()});
     }
 
     @Override
@@ -49,13 +49,13 @@ public class EmployeeGenericDAOImpl implements GenericDAO<Employee>
     @Override
     public int updateById(Employee transientObject, int id)
     {
-        return sqlExecutor.updateTable(tableName, columnsWithoutId, columnsWithoutId, new Object[]{transientObject.getFullName(), Date.valueOf(transientObject.getBirthday()), transientObject.getEmail(), transientObject.getCompanyName()}, new String[]{"id"}, new String[]{"id"}, new Object[]{id});
+        return sqlExecutor.updateTable(tableName, columnsWithoutId, columnsWithoutId, new Object[]{transientObject.getFullName(), Date.valueOf(transientObject.getBirthday()), transientObject.getEmail(), transientObject.getCompanyId()}, new String[]{"id"}, new String[]{"id"}, new Object[]{id});
     }
 
     @Override
     public int delete(Employee persistentObject)
     {
-        return sqlExecutor.deleteFromTable(tableName, columns, columns, new Object[]{persistentObject.getId(), persistentObject.getFullName(), Date.valueOf(persistentObject.getBirthday()), persistentObject.getEmail(), persistentObject.getCompanyName()});
+        return sqlExecutor.deleteFromTable(tableName, columns, columns, new Object[]{persistentObject.getId(), persistentObject.getFullName(), Date.valueOf(persistentObject.getBirthday()), persistentObject.getEmail(), persistentObject.getCompanyId()});
     }
 
     @Override
@@ -67,7 +67,7 @@ public class EmployeeGenericDAOImpl implements GenericDAO<Employee>
     @Override
     public int deleteWithoutID(Employee persistentObject)
     {
-        return sqlExecutor.deleteFromTable(tableName, columnsWithoutId, columnsWithoutId, new Object[]{persistentObject.getFullName(), Date.valueOf(persistentObject.getBirthday()), persistentObject.getEmail(), persistentObject.getCompanyName()});
+        return sqlExecutor.deleteFromTable(tableName, columnsWithoutId, columnsWithoutId, new Object[]{persistentObject.getFullName(), Date.valueOf(persistentObject.getBirthday()), persistentObject.getEmail(), persistentObject.getCompanyId()});
     }
 
     @Override
