@@ -54,15 +54,20 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
     @Override
     public void displayAddItem(Window window)
     {
-        Layout layout = (Layout) window.getContent();
+        VerticalLayout ownContent = new VerticalLayout();
+        ((Layout) window.getContent()).addComponent(ownContent);
+        ownContent.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
+        ownContent.setMargin(true);
+        ownContent.setSpacing(true);
         TextField employeeField = new TextField();
-        employeeField.setCaption(LazyUtils.getLangProperties("fullName" ) + ": ");
+        employeeField.setCaption(LazyUtils.getLangProperties("fullName") + ": ");
         employeeField.setWidth("200px");
         employeeField.setMaxLength(120);
         employeeField.addValidator(validatorMapper.getValidatorFromColumn("full_name"));
 
         DateField dateField = new DateField();
         dateField.setCaption(LazyUtils.getLangProperties("birthday") + ": ");
+        dateField.addValidator(this.validatorMapper.getValidatorFromColumn("birthday"));
         dateField.setWidth("200px");
 
         TextField emailField = new TextField();
@@ -78,16 +83,17 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         companies.stream().map(Company::getCompanyName).forEach(companyBox::addItem);
 
 
-        Button saveButton = new Button(LazyUtils.getLangProperties("button.save"));
+        Button saveButton = new Button(LazyUtils.getLangProperties("button.add"));
         Button cancelButton = new Button(LazyUtils.getLangProperties("button.cancel"));
         cancelButton.addClickListener(event1 ->
         {
             clearFields(new Field[]{employeeField, dateField, emailField, companyBox});
             window.close();
         });
+
         saveButton.addClickListener(event1 ->
         {
-            if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.getValue() != null)
+            if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.isValid())
             {
                 Employee employee = new Employee(employeeField.getValue(), toLocalDate(dateField.getValue()), emailField.getValue(), (String) companyBox.getValue());
                 int code = this.getDAO().create(employee);
@@ -99,15 +105,27 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
                 }
                 window.close();
             }
+            else
+            {
+                showErrorWithFields(new Field[]{employeeField, dateField, emailField, companyBox});
+            }
         });
-        layout.addComponents(employeeField, dateField, emailField, companyBox, cancelButton, saveButton);
+
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.addComponents(cancelButton, saveButton);
+        ownContent.addComponents(employeeField, dateField, emailField, companyBox, buttonLayout);
 
     }
 
     @Override
     public void displayEditItem(Window window, Employee employee)
     {
-        Layout layout = (Layout) window.getContent();
+        VerticalLayout ownContent = new VerticalLayout();
+        ((Layout) window.getContent()).addComponent(ownContent);
+        ownContent.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
+        ownContent.setMargin(true);
+        ownContent.setSpacing(true);
         TextField employeeField = new TextField();
         employeeField.setCaption(LazyUtils.getLangProperties("fullName") + ": ");
         employeeField.setValue(employee.getFullName());
@@ -118,6 +136,7 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         DateField dateField = new DateField();
         dateField.setCaption(LazyUtils.getLangProperties("birthday") + ": ");
         dateField.setValue(Date.valueOf(employee.getBirthday()));
+        dateField.addValidator(this.validatorMapper.getValidatorFromColumn("birthday"));
         dateField.setWidth("200px");
 
         TextField emailField = new TextField();
@@ -130,21 +149,21 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
         ComboBox companyBox = new ComboBox(LazyUtils.getLangProperties("companyName") + ": ");
         companyBox.setWidth("200px");
         companyBox.setNullSelectionAllowed(false);
-
-
+        companyBox.addValidator(validatorMapper.getValidatorFromColumn("company_name"));
         companies.stream().map(Company::getCompanyName).forEach(companyBox::addItem);
+        companyBox.select(employee.getCompanyName());
 
 
         Button saveButton = new Button(LazyUtils.getLangProperties("button.save"));
         Button cancelButton = new Button(LazyUtils.getLangProperties("button.cancel"));
         cancelButton.addClickListener(event1 ->
         {
-            clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
+            clearAction(ownContent, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
             window.close();
         });
         saveButton.addClickListener(event1 ->
         {
-            if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.getValue() != null)
+            if (employeeField.isValid() && dateField.isValid() && emailField.isValid() && companyBox.isValid())
             {
                 employee.setCompanyName(employeeField.getValue());
                 employee.setBirthday(toLocalDate(dateField.getValue()));
@@ -152,52 +171,72 @@ public class EmployeePopUpControllerImpl extends AbstractPopUpController<Employe
                 employee.setCompanyName((String) companyBox.getValue());
                 this.getDAO().updateById(employee, employee.getId());
                 updateEmployeesTable();
-                clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
+                clearAction(ownContent, new Component[]{employeeField, dateField, emailField, companyBox, saveButton, cancelButton});
                 window.close();
             }
-        });
-        layout.addComponents(employeeField, dateField, emailField, companyBox, cancelButton, saveButton);
+            else showErrorWithFields(new Field[]{employeeField, dateField, emailField, companyBox});
 
+        });
+
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.addComponents(cancelButton, saveButton);
+        ownContent.addComponents(employeeField, dateField, emailField, companyBox, buttonLayout);
     }
 
     @Override
     public void displayDeleteItem(Window window, Employee employee)
     {
-        Layout layout = (Layout) window.getContent();
-        Label employeeField = new Label();
-        employeeField.setCaption(LazyUtils.getLangProperties("fullName") + ": " + employee.getFullName());
+        VerticalLayout ownContent = new VerticalLayout();
+        ((Layout) window.getContent()).addComponent(ownContent);
+        ownContent.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
+        ownContent.setMargin(true);
+        ownContent.setSpacing(true);
+
+        TextField employeeField = new TextField();
+        employeeField.setCaption(LazyUtils.getLangProperties("fullName") + ": ");
+        employeeField.setValue(employee.getFullName());
+        employeeField.setReadOnly(true);
         employeeField.setWidth("200px");
 
-        Label dateField = new Label();
-        dateField.setCaption(LazyUtils.getLangProperties("birthday") + ": " + employee.getBirthday());
+        DateField dateField = new DateField();
+        dateField.setCaption(LazyUtils.getLangProperties("birthday") + ": ");
+        dateField.setValue(Date.valueOf(employee.getBirthday()));
+        dateField.setReadOnly(true);
         dateField.setWidth("200px");
 
-        Label emailField = new Label();
-        emailField.setCaption(LazyUtils.getLangProperties("email") + ": " + employee.getEmail());
+        TextField emailField = new TextField();
+        emailField.setCaption(LazyUtils.getLangProperties("email") + ": ");
+        emailField.setValue(employee.getEmail());
+        emailField.setReadOnly(true);
         emailField.setWidth("200px");
 
-        Label companyBox = new Label();
-        companyBox.setCaption(LazyUtils.getLangProperties("companyName") + ": " + employee.getCompanyName());
-
+        TextField companyBox = new TextField();
+        companyBox.setCaption(LazyUtils.getLangProperties("companyName") + ": ");
+        companyBox.setValue(employee.getCompanyName());
+        companyBox.setReadOnly(true);
+        companyBox.setWidth("200px");
 
         Button deleteButton = new Button(LazyUtils.getLangProperties("button.delete"));
         Button cancelButton = new Button(LazyUtils.getLangProperties("button.cancel"));
         cancelButton.addClickListener(event1 ->
         {
 
-            clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, deleteButton, cancelButton});
+            clearAction(ownContent, new Component[]{employeeField, dateField, emailField, companyBox, deleteButton, cancelButton});
             window.close();
         });
         deleteButton.addClickListener(event1 ->
         {
-
             this.getDAO().deleteByID(employee.getId());
             updateEmployeesTable();
-            clearAction(layout, new Component[]{employeeField, dateField, emailField, companyBox, deleteButton, cancelButton});
+            clearAction(ownContent, new Component[]{employeeField, dateField, emailField, companyBox, deleteButton, cancelButton});
             window.close();
 
         });
-        layout.addComponents(employeeField, dateField, emailField, companyBox, cancelButton, deleteButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.addComponents(cancelButton, deleteButton);
+        ownContent.addComponents(employeeField, dateField, emailField, companyBox, buttonLayout);
 
     }
 

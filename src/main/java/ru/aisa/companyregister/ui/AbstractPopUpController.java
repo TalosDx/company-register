@@ -1,6 +1,8 @@
 package ru.aisa.companyregister.ui;
 
+import com.vaadin.data.Validator;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.ui.*;
 import ru.aisa.companyregister.database.dao.GenericDAO;
 
@@ -66,6 +68,25 @@ public abstract class AbstractPopUpController<T>
      * @param item - объект с которым оперируем
      */
     public abstract void displayDeleteItem(Window window, T item);
+
+    protected void showErrorWithFields(Field[] fields)
+    {
+        for(int i=0; i<fields.length; i++)
+            if (!fields[i].isValid())
+            {
+                showErrorFromValidators(fields[i]);
+            }
+    }
+
+    protected void showErrorFromValidators(Field field)
+    {
+        for (Validator validator : field.getValidators())
+        {
+            AbstractValidator abstractValidator = ((AbstractValidator) validator);
+            if (!abstractValidator.isValid(field.getValue()))
+                Notification.show(((AbstractValidator) validator).getErrorMessage(), Notification.Type.ERROR_MESSAGE);
+        }
+    }
 
     void clearAction(Layout layout, Component[] components)
     {

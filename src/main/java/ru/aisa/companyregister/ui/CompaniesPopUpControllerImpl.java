@@ -51,7 +51,12 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
     @Override
     public void displayAddItem(Window window)
     {
-        Layout layout = (Layout) window.getContent();
+        VerticalLayout ownContent = new VerticalLayout();
+        ((Layout) window.getContent()).addComponent(ownContent);
+        ownContent.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
+        ownContent.setMargin(true);
+        ownContent.setSpacing(true);
+
         TextField companyField = new TextField();
         companyField.setCaption(LazyUtils.getLangProperties("companyName") + ": ");
         companyField.setWidth("200px");
@@ -95,8 +100,12 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
                     Notification.show("Компания: " + employee.getCompanyName() + " успешно добавлена!");
                 window.close();
             }
+            else showErrorWithFields(new Field[]{companyField, innField, addressField, phoneField});
         });
-        layout.addComponents(companyField, innField, addressField, phoneField, cancelButton, saveButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.addComponents(cancelButton, saveButton);
+        ownContent.addComponents(companyField, innField, addressField, phoneField, buttonLayout);
 
     }
 
@@ -104,6 +113,12 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
     @Override
     public void displayEditItem(Window window, Company company)
     {
+        VerticalLayout ownContent = new VerticalLayout();
+        ((Layout) window.getContent()).addComponent(ownContent);
+        ownContent.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
+        ownContent.setMargin(true);
+        ownContent.setSpacing(true);
+
         Layout layout = (Layout) window.getContent();
         TextField companyField = new TextField();
         companyField.setCaption(LazyUtils.getLangProperties("companyName") + ": ");
@@ -154,46 +169,66 @@ public class CompaniesPopUpControllerImpl extends AbstractPopUpController<Compan
                 super.clearAction(layout, new Component[]{companyField, innField, addressField, phoneField, saveButton, cancelButton});
                 window.close();
             }
+            else showErrorWithFields(new Field[]{companyField, innField, addressField, phoneField});
         });
-        layout.addComponents(companyField, innField, addressField, phoneField, cancelButton, saveButton);
 
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.addComponents(cancelButton, saveButton);
+        ownContent.addComponents(companyField, innField, addressField, phoneField, buttonLayout);
     }
 
     @Override
     public void displayDeleteItem(Window window, Company company)
     {
-        Layout layout = (Layout) window.getContent();
-        Label companyField = new Label();
-        companyField.setCaption(LazyUtils.getLangProperties("companyName") + ": " + company.getCompanyName());
+        VerticalLayout ownContent = new VerticalLayout();
+        ((Layout) window.getContent()).addComponent(ownContent);
+        ownContent.setDefaultComponentAlignment(Alignment.BOTTOM_CENTER);
+        ownContent.setMargin(true);
+        ownContent.setSpacing(true);
+
+        TextField companyField = new TextField();
+        companyField.setCaption(LazyUtils.getLangProperties("companyName") + ": ");
+        companyField.setValue(company.getCompanyName());
+        companyField.setReadOnly(true);
         companyField.setWidth("200px");
 
-        Label innField = new Label();
-        innField.setCaption(LazyUtils.getLangProperties("inn") + ": " + String.valueOf(company.getInn()));
+        TextField innField = new TextField();
+        innField.setCaption(LazyUtils.getLangProperties("inn") + ": ");
+        innField.setValue(String.valueOf(company.getInn()));
+        innField.setReadOnly(true);
         innField.setWidth("200px");
 
 
-        Label addressField = new Label();
-        addressField.setCaption(LazyUtils.getLangProperties("address") + ": " + company.getAddress());
+        TextField addressField = new TextField();
+        addressField.setCaption(LazyUtils.getLangProperties("address") + ": ");
+        addressField.setValue(company.getAddress());
+        addressField.setReadOnly(true);
         addressField.setWidth("200px");
 
-        Label phoneField = new Label();
+        TextField phoneField = new TextField();
         phoneField.setCaption(LazyUtils.getLangProperties("phone") + ": " + company.getPhone());
+        phoneField.setValue(company.getPhone());
+        phoneField.setReadOnly(true);
         phoneField.setWidth("200px");
 
         Button deleteButton = new Button(LazyUtils.getLangProperties("button.delete"));
         Button cancelButton = new Button(LazyUtils.getLangProperties("button.cancel"));
         cancelButton.addClickListener(event1 ->
         {
-            super.clearAction(layout, new Component[]{companyField, innField, addressField, phoneField, deleteButton, cancelButton});
+            super.clearAction(ownContent, new Component[]{companyField, innField, addressField, phoneField, deleteButton, cancelButton});
             window.close();
         });
         deleteButton.addClickListener(event1 ->
         {
             this.getDAO().deleteByID(company.getId());
             updateItemData();
-            super.clearAction(layout, new Component[]{companyField, innField, addressField, phoneField, deleteButton, cancelButton});
+            super.clearAction(ownContent, new Component[]{companyField, innField, addressField, phoneField, deleteButton, cancelButton});
             window.close();
         });
-        layout.addComponents(companyField, innField, addressField, phoneField, cancelButton, deleteButton);
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setSpacing(true);
+        buttonLayout.addComponents(cancelButton, deleteButton);
+        ownContent.addComponents(companyField, innField, addressField, phoneField, buttonLayout);
     }
 }
