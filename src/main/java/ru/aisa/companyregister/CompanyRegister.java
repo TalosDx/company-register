@@ -147,32 +147,6 @@ public class CompanyRegister extends UI
         return grid;
     }
 
-    /**
-     * Создаёт грид в зависимости от параметров
-     *
-     * @param nameColumns - имена для колонок
-     * @param types       - типы колонок
-     * @return - возвращает созданный и настроенный грид или выкидывает IllegalArgumentException в случае если размеры массивов различаются.
-     */
-    private Grid createGrid(String[] nameColumns, Class<?>[] types)
-    {
-        if (nameColumns.length != types.length)
-            throw new IllegalArgumentException("createGrid(String[] nameColumns, Class<?>[] types): nameColumns.length != types.length, nameColumns.length: " + nameColumns.length + " types.length: " + types.length);
-        else
-        {
-            Grid grid = new Grid();
-            grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-            grid.setSizeFull();
-            grid.setImmediate(true);
-            for (int i = 0; i < nameColumns.length; i++)
-                grid.addColumn(LazyUtils.getLangProperties(nameColumns[i]), types[i]);
-            if (grid.getColumn("id") != null)
-                grid.getColumn("id").setHidden(true);
-            return grid;
-        }
-    }
-
-
     private Window actionAddItem()
     {
         AbstractPopUpController controller;
@@ -183,21 +157,13 @@ public class CompanyRegister extends UI
         {
             str = "Добавить компанию";
             controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
-            window = createWindow(str);
-            VerticalLayout verticalLayout = new VerticalLayout();
-            window.setContent(verticalLayout);
-            controller.init(window);
-            controller.displayAddItem(window);
+            window = getActionAddItem(controller, str);
         }
         if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab))
         {
             str = "Добавить сотрудника";
             controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
-            window = createWindow(str);
-            VerticalLayout verticalLayout = new VerticalLayout();
-            window.setContent(verticalLayout);
-            controller.init(window);
-            controller.displayAddItem(window);
+            window = getActionAddItem(controller, str);
         }
         if (window != null)
         {
@@ -205,16 +171,6 @@ public class CompanyRegister extends UI
             window.setModal(true);
         }
         return window;
-    }
-
-    private Window createWindow(String str)
-    {
-        Window item = new Window(str);
-        item.setResizable(false);
-        item.setWidth(400, Unit.PIXELS);
-        item.setHeight(450, Unit.PIXELS);
-        item.setImmediate(true);
-        return item;
     }
 
     private void actionEditItem()
@@ -229,23 +185,13 @@ public class CompanyRegister extends UI
             {
                 str = "Редактировать компанию";
                 controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
-                window = createWindow(str);
-                VerticalLayout verticalLayout = new VerticalLayout();
-                window.setContent(verticalLayout);
-                controller.init(window);
-                controller.displayEditItem(window, companyGrid.getSelectedRow());
-                companyGrid.deselectAll();
+                window = getActionEditItem(controller, str, companyGrid);
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
             {
                 str = "Редактировать сотрудника";
                 controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
-                window = createWindow(str);
-                VerticalLayout verticalLayout = new VerticalLayout();
-                window.setContent(verticalLayout);
-                controller.init(window);
-                controller.displayEditItem(window, employeeGrid.getSelectedRow());
-                employeeGrid.deselectAll();
+                window = getActionEditItem(controller, str, employeeGrid);
             }
         }
         if (window != null)
@@ -268,23 +214,13 @@ public class CompanyRegister extends UI
             {
                 str = "Удалить компанию";
                 controller = new CompaniesPopUpControllerImpl(companiesDAO, companyBeanItemContainer, employeeDAO);
-                window = createWindow(str);
-                VerticalLayout verticalLayout = new VerticalLayout();
-                window.setContent(verticalLayout);
-                controller.init(window);
-                controller.displayDeleteItem(window, companyGrid.getSelectedRow());
-                companyGrid.deselectAll();
+                window = getActionDeleteItem(controller, str, companyGrid);
             }
             if (Objects.equals(contentTabs.getTab(contentTabs.getSelectedTab()), employeeTab) && employeeGrid.getSelectedRow() != null)
             {
                 str = "Удалить сотрудника";
                 controller = new EmployeePopUpControllerImpl(employeeDAO, employeeBeanItemContainer, companiesDAO);
-                window = createWindow(str);
-                VerticalLayout verticalLayout = new VerticalLayout();
-                window.setContent(verticalLayout);
-                controller.init(window);
-                controller.displayDeleteItem(window, employeeGrid.getSelectedRow());
-                employeeGrid.deselectAll();
+                window = getActionDeleteItem(controller, str, employeeGrid);
             }
         }
         if (window != null)
@@ -293,5 +229,49 @@ public class CompanyRegister extends UI
             window.setModal(true);
         }
 
+    }
+
+    private Window createWindow(String str)
+    {
+        Window item = new Window(str);
+        item.setResizable(false);
+        item.setWidth(250, Unit.PIXELS);
+        item.setHeight(300, Unit.PIXELS);
+        item.setImmediate(true);
+        return item;
+    }
+
+    private Window getActionAddItem(AbstractPopUpController controller, String str)
+    {
+        Window window;
+        window = createWindow(str);
+        VerticalLayout verticalLayout = new VerticalLayout();
+        window.setContent(verticalLayout);
+        controller.init(window);
+        controller.displayAddItem(window);
+        return window;
+    }
+
+    private Window getActionEditItem(AbstractPopUpController controller, String str, Grid grid)
+    {
+        Window window;
+        window = createWindow(str);
+        VerticalLayout verticalLayout = new VerticalLayout();
+        window.setContent(verticalLayout);
+        controller.init(window);
+        controller.displayEditItem(window, grid.getSelectedRow());
+        grid.deselectAll();
+        return window;
+    }
+
+    private Window getActionDeleteItem(AbstractPopUpController controller, String str, Grid grid)
+    {
+        Window window = createWindow(str);
+        VerticalLayout verticalLayout = new VerticalLayout();
+        window.setContent(verticalLayout);
+        controller.init(window);
+        controller.displayDeleteItem(window, grid.getSelectedRow());
+        grid.deselectAll();
+        return window;
     }
 }

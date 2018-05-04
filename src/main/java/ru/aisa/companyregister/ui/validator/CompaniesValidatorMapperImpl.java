@@ -17,7 +17,7 @@ public class CompaniesValidatorMapperImpl implements ColumnsValidatorMapper
 
     private static void init()
     {
-        validatorMap.put("company_name", new AbstractStringValidator("Любые символы кроме цифр")
+        validatorMap.put("company_name", new AbstractStringValidator("Имя компании не может быть пустым или содержать цифры")
         {
             @Override
             protected boolean isValidValue(String value)
@@ -25,7 +25,7 @@ public class CompaniesValidatorMapperImpl implements ColumnsValidatorMapper
                 return value.length() > 2 && value.length() < 120+1 && value.matches("[^0-9]+");
             }
         });
-        validatorMap.put("inn", new AbstractStringValidator("Только цифры")
+        validatorMap.put("inn", new AbstractStringValidator("ИНН не может быть больше 12 и может содержать только цифры")
         {
             @Override
             protected boolean isValidValue(String value)
@@ -33,8 +33,8 @@ public class CompaniesValidatorMapperImpl implements ColumnsValidatorMapper
                 return value.length() < 12+1 && value.matches("[0-9]+");
             }
         });
-        validatorMap.put("address", new StringLengthValidator("Адрес больше 250 символов", 1, 251, false));
-        validatorMap.put("phone", new AbstractStringValidator("Формат ввода телефона: +7952-124-14-15")
+        validatorMap.put("address", new StringLengthValidator("Адрес не может быть пустым и быть больше 250 символов", 1, 251, false));
+        validatorMap.put("phone", new AbstractStringValidator("Неправильный номер телефона, используйте формат: +7952-124-14-15")
         {
             @Override
             protected boolean isValidValue(String value)

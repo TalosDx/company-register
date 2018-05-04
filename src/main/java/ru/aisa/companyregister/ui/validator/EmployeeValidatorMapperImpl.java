@@ -6,7 +6,9 @@ import com.vaadin.data.validator.DateRangeValidator;
 import com.vaadin.data.validator.EmailValidator;
 import com.vaadin.shared.ui.datefield.Resolution;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 public class EmployeeValidatorMapperImpl implements ColumnsValidatorMapper
@@ -20,22 +22,26 @@ public class EmployeeValidatorMapperImpl implements ColumnsValidatorMapper
 
     private static void init()
     {
-        validatorMap.put("full_name", new AbstractStringValidator("Любые символы кроме цифр")
+        validatorMap.put("full_name", new AbstractStringValidator("Имя не может быть пустым или содержать цифры")
         {
             @Override
             protected boolean isValidValue(String value)
             {
-                return value.length() > 2 && value.length() < 120+1 && value.matches("[^0-9]+");
+                return value != null && value.length() > 2 && value.length() < 120+1 && value.matches("[^0-9]+");
             }
         });
-        validatorMap.put("birthday", new DateRangeValidator("Not valid date", new Date(1900, 1, 1), new Date(9999, 12, 31), Resolution.DAY));
-        validatorMap.put("email", new EmailValidator("Неправильный email, пример: username@gmail.com"));
-        validatorMap.put("company_name", new AbstractStringValidator("Любые символы кроме цифр")
+        Calendar firstDate = new GregorianCalendar();
+        firstDate.set(1800,1,1);
+        Calendar secondDate = GregorianCalendar.getInstance();
+        secondDate.add(Calendar.YEAR, -18);
+        validatorMap.put("birthday", new DateRangeValidator("Возраст сотрудника не может быть ниже 18 и выше 200+ лет", firstDate.getTime(), secondDate.getTime(), Resolution.DAY));
+        validatorMap.put("email", new EmailValidator("Неправильный email, используйте формат: username@mail.com"));
+        validatorMap.put("company_name", new AbstractStringValidator("Имя компании не может быть пустым или содержать цифры")
         {
             @Override
             protected boolean isValidValue(String value)
             {
-                return value.length() > 2 && value.length() < 120+1 && value.matches("[^0-9]+");
+                return value != null && value.length() > 2 && value.length() < 120+1 && value.matches("[^0-9]+");
             }
         });
     }
@@ -46,6 +52,11 @@ public class EmployeeValidatorMapperImpl implements ColumnsValidatorMapper
         return "companies";
     }
 
+    /**
+     * Возвращает валидатор для имени колонки в базе данных
+     * @param columnName - имя колонки
+     * @return
+     */
     @Override
     public Validator getValidatorFromColumn(String columnName)
     {
