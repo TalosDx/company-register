@@ -1,8 +1,8 @@
 package ru.aisa.companyregister.utils;
 
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
+import com.vaadin.data.Validator;
+import com.vaadin.data.validator.AbstractValidator;
+import com.vaadin.ui.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +11,43 @@ import java.util.Properties;
 
 public class LazyUtils
 {
+
+    /**
+     * Проверяет валидаторы на соотвествие и выводит ошибку с помощью Notification type error
+     * @param fields - передаваемые поля
+     */
+    public static void showErrorWithFields(Field[] fields)
+    {
+        for(int i=0; i<fields.length; i++)
+            if (!fields[i].isValid())
+            {
+                showErrorFromValidators(fields[i]);
+            }
+    }
+
+    public static void showErrorFromValidators(Field field)
+    {
+        for (Validator validator : field.getValidators())
+        {
+            AbstractValidator abstractValidator = ((AbstractValidator) validator);
+            if (!abstractValidator.isValid(field.getValue()))
+                Notification.show(((AbstractValidator) validator).getErrorMessage(), Notification.Type.ERROR_MESSAGE);
+        }
+    }
+
+    public static void clearAction(Layout layout, Component[] components)
+    {
+        for (Component component : components)
+            layout.removeComponent(component);
+    }
+
+
+    public static void clearFields(Field[] fields)
+    {
+        for(Field field : fields)
+            field.clear();
+    }
+
 
     public static LocalDate toLocalDate(java.util.Date date)
     {
