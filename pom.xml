@@ -90,6 +90,11 @@
             <version>42.2.2</version>
         </dependency>
         <dependency>
+            <groupId>com.github.marcosemiao.log4jdbc</groupId>
+            <artifactId>log4jdbc-file</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>RELEASE</version>
@@ -101,7 +106,18 @@
             <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin.addon</groupId>
+            <artifactId>confirmdialog</artifactId>
+            <version>3.2.0</version>
+        </dependency>
     </dependencies>
+
 
     <build>
         <resources>
