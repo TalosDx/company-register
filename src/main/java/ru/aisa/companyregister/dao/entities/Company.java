@@ -1,6 +1,8 @@
 package ru.aisa.companyregister.dao.entities;
 
-public class Company
+import java.io.Serializable;
+
+public class Company implements Serializable
 {
     private int id;
     private String companyName;

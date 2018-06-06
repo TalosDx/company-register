@@ -1,12 +1,10 @@
 package ru.aisa.companyregister.dao.wrapper.enties;
 
 import org.springframework.dao.EmptyResultDataAccessException;
-import ru.aisa.companyregister.dao.entities.User;
-import ru.aisa.companyregister.dao.mapper.UserMapperImpl;
+import ru.aisa.companyregister.dao.entities.Company;
+import ru.aisa.companyregister.dao.mapper.CompanyMapperImpl;
 import ru.aisa.companyregister.dao.wrapper.AbstractTableDAO;
 import ru.aisa.companyregister.dao.wrapper.TableDAOImpl;
-import ru.aisa.companyregister.dao.mapper.CompanyMapperImpl;
-import ru.aisa.companyregister.dao.entities.Company;
 
 import java.util.List;
 

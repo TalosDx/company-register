@@ -1,8 +1,9 @@
 package ru.aisa.companyregister.dao.entities;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Employee
+public class Employee implements Serializable
 {
     private int id;
     private String fullName, email;

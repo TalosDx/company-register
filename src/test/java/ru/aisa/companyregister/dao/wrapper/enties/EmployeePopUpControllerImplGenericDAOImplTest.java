@@ -14,19 +14,19 @@ class EmployeePopUpControllerImplGenericDAOImplTest
     private final GenericDAO genericDAO = new EmployeeGenericDAOImpl();
 
     @Test
-    void create()
+    public void create()
     {
         System.out.println(genericDAO.create(employee));
     }
 
     @Test
-    void read()
+    public void read()
     {
         System.out.println(genericDAO.read(2));
     }
 
     @Test
-    void read1()
+    public void read1()
     {
         System.out.println(genericDAO.read(
                 new String[] {"id"},
@@ -35,31 +35,31 @@ class EmployeePopUpControllerImplGenericDAOImplTest
     }
 
     @Test
-    void readAll1()
+    public void readAll1()
     {
         System.out.print(genericDAO.readAll());
     }
 
     @Test
-    void updateById()
+    public void updateById()
     {
         System.out.print(genericDAO.updateById(employee1, 2));
     }
 
     @Test
-    void delete()
+    public void delete()
     {
         System.out.print(genericDAO.delete(genericDAO.read(2)));
     }
 
     @Test
-    void deleteByID()
+    public void deleteByID()
     {
         System.out.print(genericDAO.deleteByID(2));
     }
 
     @Test
-    void deleteWithoutID()
+    public void deleteWithoutID()
     {
         System.out.print(genericDAO.deleteWithoutID(employee));
     }
